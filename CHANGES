@@ -2,7 +2,7 @@
 # Changes of OTRS
 # Copyright (C) 2001-2004 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: CHANGES,v 1.110.2.9 2004-09-23 09:21:28 martin Exp $
+# $Id: CHANGES,v 1.110.2.10 2004-11-24 10:48:53 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -10,6 +10,8 @@
 # --
 
 1.2.5 (200?-??-??)
+ - (2004/11/24) fixed new owner list in Kernel/Modules/AgentMove.pm
+    (show just user with rw permission to selected queue)
  - (2004/09/23) fixed not sended agent notification after created Email-Ticket
  - (2004/09/23) fixed ticket zoom in customer panel if no customer article
    exists
