@@ -2,7 +2,7 @@
 # Kernel/Modules/AgentUtilities.pm - Utilities for tickets
 # Copyright (C) 2001-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: AgentUtilities.pm,v 1.25.2.1 2003-05-29 16:09:19 martin Exp $
+# $Id: AgentUtilities.pm,v 1.25.2.2 2003-07-10 19:53:50 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -15,7 +15,7 @@ use strict;
 use Kernel::System::CustomerUser;
 
 use vars qw($VERSION);
-$VERSION = '$Revision: 1.25.2.1 $';
+$VERSION = '$Revision: 1.25.2.2 $';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 # --
@@ -129,6 +129,7 @@ sub Search {
         # modifier search string!!!
         my $TicketNumberTmp = $TicketNumber;
         $TicketNumberTmp =~ s/\*/%/g;
+        $TicketNumberTmp =~ s/\s$//g;
         $SqlTicketNumberExt .= " st.tn LIKE '$TicketNumberTmp' ";
     }
     my $SqlUserExt = '';
