@@ -2,12 +2,29 @@
 # Changes of OTRS 
 # Copyright (C) 2002-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: CHANGES,v 1.79.2.9 2003-06-01 20:58:31 martin Exp $
+# $Id: CHANGES,v 1.79.2.10 2003-07-13 11:54:20 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see 
 # the enclosed file COPYING for license information (GPL). If you 
 # did not receive this file, see http://www.gnu.org/licenses/gpl.txt.
 # --
+1.1.3 (2003-07-12)
+ - (2003/07/12) fixed shown html emails in zoom view
+ - (2003/07/12) improved performance of Kernel/System/Ticket/ArticleStorageDB.pm
+    with large objects
+ - (2003/07/10) fixed bug 171 - No lock check if two Agents try to lock 
+    ticket at same time (or later)
+ - (2003/07/06) fixed bug 168 - The install script for POSTGRES contains wrong 
+    datatypes (DATETIME instead of TIMESTAMP)
+ - (2003/07/06) fixed bug 165 - Pop3 change - does not show the queue
+ - (2003/07/03) fixed bug 178 - Authenticated customer LDAP requests don't work
+ - (2003/07/02) updated Finnish translation, thanks to Antti Kämäräinen
+ - (2003/07/01) added SMTP module port patch of Jeroen Boomgaardt
+ - (2003/06/22) fixed bug 144 - PostMasterPOP3.pl is exiting 
+    "Attached .eml file causes bug in EmailParser.pm"
+    http://bugs.otrs.org/show_bug.cgi?id=144
+ - (2003/06/04) fixed legend colors of stats pics
+
 1.1.2 (2003-05-31)
  - (2003/06/01) improved Kernel/System/Ticket/Number/*.pm (ticket number
     generator modules to work with non existing var/log/TicketCounter.log.
