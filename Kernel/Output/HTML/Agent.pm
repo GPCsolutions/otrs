@@ -2,7 +2,7 @@
 # HTML/Agent.pm - provides generic agent HTML output
 # Copyright (C) 2001-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: Agent.pm,v 1.110.2.10 2003-08-22 12:01:06 martin Exp $
+# $Id: Agent.pm,v 1.110.2.11 2003-08-22 15:19:02 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -14,7 +14,7 @@ package Kernel::Output::HTML::Agent;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '$Revision: 1.110.2.10 $';
+$VERSION = '$Revision: 1.110.2.11 $';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 # --
@@ -317,6 +317,7 @@ sub TicketView {
             NewLine => $Self->{ConfigObject}->Get('ViewableTicketNewLine') || 85,
             Text => $Param{Body}, 
             VMax => $Self->{ConfigObject}->Get('ViewableTicketLines') || 25,
+            HTMLResultMode => 1,
         );
         # --
         # do link quoting
@@ -646,6 +647,7 @@ sub AgentZoom {
                 NewLine => $Self->{ConfigObject}->Get('ViewableTicketNewLine') || 85,
                 Text => $Article{Body},
                 VMax => $Self->{ConfigObject}->Get('ViewableTicketLinesZoom') || 5000,
+                HTMLResultMode => 1
             );
             # --
             # link quoting
@@ -890,7 +892,7 @@ sub ArticlePlain {
     my %Param = @_;
 
     # Ascii2Html
-    $Param{Text} = $Self->Ascii2Html(Text => $Param{Text});
+    $Param{Text} = $Self->Ascii2Html(Text => $Param{Text}, HTMLResultMode => 1);
 
     # do some highlightings
     $Param{Text} =~ s/^((From|To|Cc|Subject|Reply-To|Organization|X-Company):.*)/<font color=\"red\">$1<\/font>/gm;
@@ -1406,6 +1408,7 @@ sub AgentUtilSearchResult {
             NewLine => $Self->{ConfigObject}->Get('ViewableTicketNewLine') || 85,
             Text => $Param{Body},
             VMax => $Self->{ConfigObject}->Get('ViewableTicketLinesBySearch') || 15,
+            HTMLResultMode => 1
         );
         # --
         # do charset check
