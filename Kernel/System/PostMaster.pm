@@ -2,7 +2,7 @@
 # Kernel/System/PostMaster.pm - the global PostMaster module for OTRS
 # Copyright (C) 2001-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: PostMaster.pm,v 1.22 2003-02-03 20:52:58 martin Exp $
+# $Id: PostMaster.pm,v 1.22.2.1 2003-03-17 17:40:54 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see 
 # the enclosed file COPYING for license information (GPL). If you 
@@ -20,8 +20,8 @@ use Kernel::System::PostMaster::NewTicket;
 
 use vars qw(@ISA $VERSION);
 
-$VERSION = '$Revision: 1.22 $';
-$VERSION =~ s/^.*:\s(\d+\.\d+)\s.*$/$1/;
+$VERSION = '$Revision: 1.22.2.1 $';
+$VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 # --
 sub new {
@@ -97,7 +97,7 @@ sub Run {
            Message => "Droped Email (From: $GetParam{'From'}, Message-ID: $GetParam{'Message-ID'}) " .
            "because the X-OTRS-Ignore is set (X-OTRS-Ignore: $GetParam{'X-OTRS-Ignore'})."
        );
-       exit (0);
+       return 1;
    }
    # --
    # ticket section
@@ -151,7 +151,7 @@ sub Run {
             Comment => "Because the old ticket [$Tn] is '$State'",
             AutoResponseType => 'auto reply/new ticket',
           );
-          exit (0);
+          return 1;
         }
         # reject follow up
         elsif ($FollowUpPossible =~ /reject/i && $State =~ /^close/i) {
@@ -170,7 +170,7 @@ sub Run {
             Comment => 'Follow up rejected.',
             AutoResponseType => 'auto reject',
           );
-          exit (0);
+          return 1;
         }
         # create normal follow up
         else {
