@@ -2,7 +2,7 @@
 # INSTALL description of OTRS
 # Copyright (C) 2001-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: INSTALL,v 1.28.2.1 2003-02-11 15:30:01 wiktor Exp $
+# $Id: INSTALL,v 1.28.2.2 2003-02-15 13:54:19 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see 
 # the enclosed file COPYING for license information (GPL). If you 
@@ -83,7 +83,6 @@ settings. The OTRS user is "otrs" and the home (root) directory is /opt/otrs
    ---------------
    $shell: cd /opt/
    $shell: tar -xzvf otrs-xxxx-xx-xx.tar-gz
-   $shell: chown -R /opt/otrs/* otrs
 
 4. Demo config files:
    ------------------  
