@@ -3,7 +3,7 @@
 # pic.pl - the global pic handle for OTRS
 # Copyright (C) 2002-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: pic.pl,v 1.12 2003-01-03 16:17:08 martin Exp $
+# $Id: pic.pl,v 1.12.2.1 2003-03-02 12:55:40 martin Exp $
 # --
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,8 +28,8 @@ use lib "$Bin/../../Kernel/cpan-lib";
 use strict;
 
 use vars qw($VERSION $Debug);
-$VERSION = '$Revision: 1.12 $';
-$VERSION =~ s/^.*:\s(\d+\.\d+)\s.*$/$1/;
+$VERSION = '$Revision: 1.12.2.1 $';
+$VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 # --
 # check @INC for mod_perl (add lib path for "require module"!)
@@ -139,6 +139,16 @@ EOF
   }
   else {
     my $Pic = '';
+    my $ContentType = '';
+    if ($Param{Pic} =~ /\.png$/) {
+        $ContentType = 'image/png';
+    }
+    elsif ($Param{Pic} =~ /\.(jpeg|jpg|jpe)$/) {
+        $ContentType = 'image/jpeg';
+    }
+    elsif ($Param{Pic} =~ /\.(gif)$/) {
+        $ContentType = 'image/gif';
+    }
     if ($Param{Action} eq 'SystemStats') {
       $Pic = GetImage($Param{Pic}, 'SystemStats', \%CommonObject) 
        || GetImage('help.gif', '', \%CommonObject);
@@ -148,10 +158,10 @@ EOF
        || GetImage('help.gif', '', \%CommonObject);
     }
     print <<EOF
-Content-Type: image
+Content-Disposition: attachment; filename=$Param{Pic}
+Content-Type: $ContentType 
 
 $Pic
-
 EOF
   }
 }
