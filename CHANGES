@@ -2,14 +2,21 @@
 # Changes of OTRS 
 # Copyright (C) 2002-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: CHANGES,v 1.56.2.1 2003-02-15 13:29:37 martin Exp $
+# $Id: CHANGES,v 1.56.2.2 2003-03-09 17:26:46 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see 
 # the enclosed file COPYING for license information (GPL). If you 
 # did not receive this file, see http://www.gnu.org/licenses/gpl.txt.
 # --
-1.0.2 (2003-??-??)
-- (2002/02/14) fixed default Spelling Dictionary selection and added
+1.0.2 (2003-03-09)
+- (2003/03/09) fixed http redirect problem with mod_perl2
+- (2003/03/09) fixed pic.pl and show html email problem with IE -
+    http://lists.otrs.org/pipermail/otrs/2003-March/001104.html
+- (2003/03/08) fixed spell check problem - 
+    http://lists.otrs.org/pipermail/otrs/2003-March/001077.html
+- (2003/02/26) added missing ResponseFormat config option to
+    Kernel/Config/Defaults.pm
+- (2003/02/14) fixed default Spelling Dictionary selection and added
     a preferences option
  - (2003/02/13) added PendingDiffTime config option (add this time to 
     shown (selected) pending time) -
