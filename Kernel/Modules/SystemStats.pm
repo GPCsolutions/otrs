@@ -1,8 +1,8 @@
 # --
 # Kernel/Modules/SystemStats.pm - show stats of otrs
-# Copyright (C) 2001-2003 Martin Edenhofer <martin+code@otrs.org>
+# Copyright (C) 2001-2004 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: SystemStats.pm,v 1.9 2003-12-29 17:30:11 martin Exp $
+# $Id: SystemStats.pm,v 1.9.2.1 2004-10-25 08:54:31 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -14,7 +14,7 @@ package Kernel::Modules::SystemStats;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '$Revision: 1.9 $ ';
+$VERSION = '$Revision: 1.9.2.1 $ ';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 # --
@@ -49,7 +49,7 @@ sub Run {
     my $UserID = $Self->{UserID};
     my $UserLogin = $Self->{UserLogin};
     my $DataDir = $Self->{ConfigObject}->Get('StatsPicDir') || '/opt/OpenTRS/var/pics/stats';
-    
+
     if ($Subaction eq '' || !$Subaction) {
 
         # fetch files
@@ -63,7 +63,7 @@ sub Run {
         $Output .= $Self->{LayoutObject}->Header(Area => 'Stats',Title => 'Overview');
         my %LockedData = $Self->{TicketObject}->GetLockedCount(UserID => $UserID);
         $Output .= $Self->{LayoutObject}->NavigationBar(LockData => \%LockedData);
-        
+
         # fetch data
         my %SytemTickets;
         my $SQL = "SELECT count(*), tsd.name FROM " .
@@ -75,7 +75,7 @@ sub Run {
         while (my @RowTmp = $Self->{DBObject}->FetchrowArray()) {
             $SytemTickets{$RowTmp[1]} = $RowTmp[0];
         }
-        
+
         $Output .= $Self->MaskSystemStats(
             Files => \@Index,
             SystemTickts => \%SytemTickets
@@ -106,7 +106,7 @@ sub MaskSystemStats {
     my %SytemTickets = %$SystemTicktsTmp;
 
     $Param{TicketCounter} = 0;
-    foreach (keys %SytemTickets) {
+    foreach (sort {$SytemTickets{$a} cmp $SytemTickets{$b}} keys %SytemTickets) {
       $Param{CounterOutput} .= "<TR ALIGN=CENTER><TD>\$Text{\"$_\"}</TD><TD>$SytemTickets{$_}</TD></TR>\n";
       $Param{TicketCounter} = $Param{TicketCounter} + $SytemTickets{$_};
     }
