@@ -3,7 +3,7 @@
 # index.pl - the global CGI handle file (incl. auth) for OTRS
 # Copyright (C) 2001-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: index.pl,v 1.50 2003-01-29 18:54:18 martin Exp $
+# $Id: index.pl,v 1.50.2.1 2003-02-11 14:57:43 wiktor Exp $
 # --
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ use lib "$Bin/../../Kernel/cpan-lib";
 use strict;
 
 use vars qw($VERSION @INC);
-$VERSION = '$Revision: 1.50 $';
+$VERSION = '$Revision: 1.50.2.1 $';
 $VERSION =~ s/^.*:\s(\d+\.\d+)\s.*$/$1/;
 
 # --
@@ -253,7 +253,7 @@ if ($Param{Action} eq "Login") {
         print $LayoutObject->Redirect(OP => "$Param{RequestedURL}");
     }
     # --
-    # login is vailid
+    # login is valid
     # --
     else {
         if ($CommonObject{ConfigObject}->Get('LoginURL')) {
