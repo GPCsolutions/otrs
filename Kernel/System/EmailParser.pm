@@ -2,7 +2,7 @@
 # Kernel/System/EmailParser.pm - the global email parser module
 # Copyright (C) 2001-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: EmailParser.pm,v 1.10 2003-01-03 00:30:28 martin Exp $
+# $Id: EmailParser.pm,v 1.10.2.1 2003-04-16 15:59:10 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -20,7 +20,7 @@ use MIME::Words qw(:all);
 use Mail::Address;
 
 use vars qw($VERSION);
-$VERSION = '$Revision: 1.10 $';
+$VERSION = '$Revision: 1.10.2.1 $';
 $VERSION =~ s/^.*:\s(\d+\.\d+)\s.*$/$1/;
 
 # --
@@ -162,8 +162,11 @@ sub GetTheFirstAtm {
 		    print STDERR '->GotArticle::Atm->Filename:' . $Filename . "\n";
 	    }
         if (!$Self->{ContentType}) {
-            $Self->{ContentType} = $Part->head()->mime_type()."; charset=";
-            $Self->{ContentType} .= $Part->head()->mime_attr('content-type.charset');
+            $Self->{ContentType} = $Part->head()->mime_type()."; ";
+            if ($Part->head()->mime_attr('content-type.charset')) {
+                $Self->{ContentType} .= "charset=";
+                $Self->{ContentType} .= $Part->head()->mime_attr('content-type.charset');
+            }
         }
         if (!exists $Self->{MailBody}) {
             $Self->{MailBody} = $Part->bodyhandle()->as_string();
