@@ -2,7 +2,7 @@
 # HTML/Agent.pm - provides generic agent HTML output
 # Copyright (C) 2001-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: Agent.pm,v 1.110.2.9 2003-07-13 19:02:08 martin Exp $
+# $Id: Agent.pm,v 1.110.2.10 2003-08-22 12:01:06 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -14,7 +14,7 @@ package Kernel::Output::HTML::Agent;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '$Revision: 1.110.2.9 $';
+$VERSION = '$Revision: 1.110.2.10 $';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 # --
@@ -326,7 +326,6 @@ sub TicketView {
         # create new body (keep text for comp.)
         # --
         $Param{Body} = $Param{Text};
-        $Param{Body} =~ s/\n/<br>\n/g;
         # --
         # do charset check
         # --
@@ -656,7 +655,6 @@ sub AgentZoom {
             # create new body (keep text for comp.)
             # --
             $Param{"Article::Body"} = $Param{"Article::Text"};
-            $Param{"Article::Body"} =~ s/\n/<br>\n/g;
             # --
             # do charset check
             # --
@@ -893,7 +891,6 @@ sub ArticlePlain {
 
     # Ascii2Html
     $Param{Text} = $Self->Ascii2Html(Text => $Param{Text});
-    $Param{Text} =~ s/\n/<br>\n/g;
 
     # do some highlightings
     $Param{Text} =~ s/^((From|To|Cc|Subject|Reply-To|Organization|X-Company):.*)/<font color=\"red\">$1<\/font>/gm;
@@ -1410,7 +1407,6 @@ sub AgentUtilSearchResult {
             Text => $Param{Body},
             VMax => $Self->{ConfigObject}->Get('ViewableTicketLinesBySearch') || 15,
         );
-        $Param{Body} =~ s/\n/<br>\n/g;
         # --
         # do charset check
         # --

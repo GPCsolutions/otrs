@@ -2,7 +2,7 @@
 # Kernel/Output/HTML/Generic.pm - provides generic HTML output
 # Copyright (C) 2001-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: Generic.pm,v 1.87.2.2 2003-07-06 12:46:16 martin Exp $
+# $Id: Generic.pm,v 1.87.2.3 2003-08-22 12:01:06 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -22,7 +22,7 @@ use Kernel::Output::HTML::System;
 use Kernel::Output::HTML::Customer;
 
 use vars qw(@ISA $VERSION);
-$VERSION = '$Revision: 1.87.2.2 $';
+$VERSION = '$Revision: 1.87.2.3 $';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 @ISA = (
@@ -572,8 +572,6 @@ sub Error {
     foreach (qw(Message Traceback)) {
       $Param{'Backend'.$_} = $Self->{LogObject}->Error($_) || '';
       $Param{'Backend'.$_} = $Self->Ascii2Html(Text => $Param{'Backend'.$_});
-      $Param{'Backend'.$_} =~ s/\n/<br>\n/g;
-      $Param{'Backend'.$_} =~ s/  / &nbsp;/g;
     }
     if (!$Param{Message}) {
       $Param{Message} = $Param{BackendMessage};
@@ -685,6 +683,9 @@ sub Ascii2Html {
     $Text =~ s/"/&quot;/g;
     $Text =~ s/ç/&ccedil;/g;
 #&ntilde;
+    # text -> html format quoting
+    $Text =~ s/\n/<br>\n/g;
+    $Text =~ s/  / &nbsp;/g;
     # return result
     return $Text;
 }
