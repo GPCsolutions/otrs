@@ -2,7 +2,7 @@
 # Kernel/System/Ticket/Article.pm - global article module for OTRS kernel
 # Copyright (C) 2001-2004 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: Article.pm,v 1.52 2004-02-18 11:51:29 martin Exp $
+# $Id: Article.pm,v 1.52.2.1 2004-09-23 09:21:28 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see 
 # the enclosed file COPYING for license information (GPL). If you 
@@ -14,7 +14,7 @@ package Kernel::System::Ticket::Article;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '$Revision: 1.52 $';
+$VERSION = '$Revision: 1.52.2.1 $';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 # --
@@ -234,11 +234,11 @@ sub CreateArticle {
     # send agent notification!?
     # --
     my $To = '';
-    if ($Param{HistoryType} =~ /^(EmailCustomer|PhoneCallCustomer|WebRequestCustomer)$/i) {
+    if ($Param{HistoryType} =~ /^(EmailAgent|EmailCustomer|PhoneCallCustomer|WebRequestCustomer)$/i) {
         foreach ($Self->{QueueObject}->GetAllUserIDsByQueueID(QueueID => $Ticket{QueueID})) {
 	    my %UserData = $Self->{UserObject}->GetUserData(
-                UserID => $_, 
-                Cached => 1, 
+                UserID => $_,
+                Cached => 1,
                 Valid => 1,
             );
             if ($UserData{UserSendNewTicketNotification}) {
