@@ -1,20 +1,21 @@
 # --
-# Changes of OTRS 
+# Changes of OTRS
 # Copyright (C) 2001-2004 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: CHANGES,v 1.110.2.7 2004-06-29 11:08:45 martin Exp $
+# $Id: CHANGES,v 1.110.2.8 2004-07-09 10:02:05 martin Exp $
 # --
-# This software comes with ABSOLUTELY NO WARRANTY. For details, see 
-# the enclosed file COPYING for license information (GPL). If you 
+# This software comes with ABSOLUTELY NO WARRANTY. For details, see
+# the enclosed file COPYING for license information (GPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/gpl.txt.
 # --
 
-1.2.4 (2004-??-??)
+1.2.4 (2004-07-07)
 
- - (2004/06/29) fixed bug [456] not existing queue_auto_response 
+ - (2004/06/29) added rpm package for SUSE 9.1
+ - (2004/06/29) fixed bug [456] not existing queue_auto_response
     references in scripts/database/initial_insert.sql
- - (2004/06/11) added Hungarian translation. Thanks to Gáncs Gábor!  
- - (2004/04/10) fixed not shown "this message is written in an 
+ - (2004/06/11) added Hungarian translation. Thanks to Gáncs Gábor!
+ - (2004/04/10) fixed not shown "this message is written in an
     other charset as your own" link in agent zoom
  - (2004/04/08) fixed performance problem in Kernel::Language
     module (get ~5% more performance of the webinterface)
@@ -27,9 +28,9 @@
  - (2004/03/28) fixed bug 365 - null attachment kills pop import script
     http://bugs.otrs.org/show_bug.cgi?id=365
  - (2004/03/25) updated pl language translation, Thanks to Tomasz Melissa!
- - (2004/03/25) fixed quote bug in AgentPhoneView, AgentEmail and 
+ - (2004/03/25) fixed quote bug in AgentPhoneView, AgentEmail and
     AgentCompose.
- - (2004/03/08) fixed bug 341 Wrong results searching for time ranges 
+ - (2004/03/08) fixed bug 341 Wrong results searching for time ranges
     http://bugs.otrs.org/show_bug.cgi?id=341
  - (2004/02/29) fixed language quoting in customer login screen
  - (2004/02/27) fixed missing "internal (agent)" agent search faq
@@ -38,16 +39,16 @@
 1.2.2 (2004-02-23)
 
  - (2004/02/17) changed screen after moved ticket (like OTRS 1.1)
- - (2004/02/17) added null option to search options 
+ - (2004/02/17) added null option to search options
     http://bugs.otrs.org/show_bug.cgi?id=321
  - (2004/02/17) fixed double quote bug in GetIdOfArticle()/CreateArticle()
     http://bugs.otrs.org/show_bug.cgi?id=319
- - (2004/02/17) fixed bug 317 - Return Path set to invalid email 
+ - (2004/02/17) fixed bug 317 - Return Path set to invalid email
     http://bugs.otrs.org/show_bug.cgi?id=317
 
 1.2.1 (2004-02-14)
 
- - (2004/02/14) fixed escalation bug 290 - 
+ - (2004/02/14) fixed escalation bug 290 -
     http://bugs.otrs.org/show_bug.cgi?id=290
  - (2004/02/14) updated spanish translation. Thanks to Jorge Becerra!
  - (2004/02/14) updated czech translation. Thanks to Petr Ocasek
@@ -56,26 +57,26 @@
     Thanks to Arne Georg Gleditsch!
  - (2004/02/12) fixed security bugs ins SQL quote()
  - (2004/02/12) fixed bin/PendingJobs.pl bug (Need User)
- - (2004/02/10) fixed CustomerUserAdd, added Source default map if 
+ - (2004/02/10) fixed CustomerUserAdd, added Source default map if
     no Source name is given
- - (2004/02/10) fixed missing translation in agent and customer 
+ - (2004/02/10) fixed missing translation in agent and customer
     preferences option selections.
 
 1.2.0 beta3 (2004-02-09)
 
- - (2004/02/09) fixed bug 249 Editing system e-mail addresses with 
+ - (2004/02/09) fixed bug 249 Editing system e-mail addresses with
     quotations in name field - http://bugs.otrs.org/show_bug.cgi?id=249
- - (2004/02/09) added contact customer (create ticket) feature 
+ - (2004/02/09) added contact customer (create ticket) feature
  - (2004/02/08) added multi customer map/source support
  - (2004/02/08) added GenericAgent module support
  - (2004/02/05) fixed bug in X-OTRS-Queue option if bin/PostMasterPOP3.pl
     is used.
  - (2004/02/04) fixed bug in customer interface (empty To selection)
- - (2004/02/03) fixed typo in template (wrong $Data{} for Field6) 
+ - (2004/02/03) fixed typo in template (wrong $Data{} for Field6)
     Kernel/Output/HTML/Standard/FAQArticleForm.dtl
 
 1.2.0 beta2 (2004-02-02)
- 
+
  - (2004/02/02) replaced column "comment" to "comments" of each table to
     be oracle compat.
  - (2004/02/02) added ticket link feature
@@ -99,12 +100,12 @@
     # otherway, each user is ro/rw in each group!)
     $Self->{CustomerGroupSupport} = 0;
 
-    # CustomerGroupAlwaysGroups 
+    # CustomerGroupAlwaysGroups
     # (if CustomerGroupSupport is true and you don't want to manage
     # each customer user for this groups, then put the groups
     # for all customer user in there)
     $Self->{CustomerGroupAlwaysGroups} = ['users', 'info'];
- - (2004/01/23) changed Kernel::System::Ticket->SearchTicket() to 
+ - (2004/01/23) changed Kernel::System::Ticket->SearchTicket() to
     return false if on param (e. g. Queue or State) doesn't exist
     (problem was, that if a queue name dosn't exist, then the
     GenericAgent gets tickets from all queues!).
