@@ -2,7 +2,7 @@
 # Kernel/System/CustomerUser/DB.pm - some customer user functions
 # Copyright (C) 2002-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: DB.pm,v 1.6.2.1 2003-02-08 13:29:02 martin Exp $
+# $Id: DB.pm,v 1.6.2.2 2003-02-11 12:40:48 wiktor Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -15,7 +15,7 @@ use strict;
 use Kernel::System::CheckItem;
 
 use vars qw(@ISA $VERSION);
-$VERSION = '$Revision: 1.6.2.1 $';
+$VERSION = '$Revision: 1.6.2.2 $';
 $VERSION =~ s/^.*:\s(\d+\.\d+)\s.*$/$1/;
 
 # --
@@ -57,8 +57,8 @@ sub CustomerSearch {
     # --
     $Param{UserLogin} =~ s/\*/%/g;
     my $SQL = "SELECT $Self->{CustomerKey} ";
-    if ($Self->{ConfigObject}->Get('CustomerUser')->{CustomerUserListFileds}) {
-        foreach my $Entry (@{$Self->{ConfigObject}->Get('CustomerUser')->{CustomerUserListFileds}}) {
+    if ($Self->{ConfigObject}->Get('CustomerUser')->{CustomerUserListFields}) {
+        foreach my $Entry (@{$Self->{ConfigObject}->Get('CustomerUser')->{CustomerUserListFields}}) {
             $SQL .= ", $Entry";
         }
     }
