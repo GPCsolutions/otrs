@@ -2,7 +2,7 @@
 # Kernel/Output/HTML/Generic.pm - provides generic HTML output
 # Copyright (C) 2001-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: Generic.pm,v 1.87.2.1 2003-05-13 14:19:18 martin Exp $
+# $Id: Generic.pm,v 1.87.2.2 2003-07-06 12:46:16 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -22,7 +22,7 @@ use Kernel::Output::HTML::System;
 use Kernel::Output::HTML::Customer;
 
 use vars qw(@ISA $VERSION);
-$VERSION = '$Revision: 1.87.2.1 $';
+$VERSION = '$Revision: 1.87.2.2 $';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 @ISA = (
@@ -357,6 +357,17 @@ sub Output {
         }egx;
     }
     # --
+    # do time translation
+    # --
+    foreach (1..1) {
+        $Output =~ s{
+            \$TimeLong({"(.+?)"}|{""})
+        }
+        { 
+            $Self->{LanguageObject}->FormatTimeString($2);
+        }egx;
+    }
+    # --
     # do translation
     # --
     foreach (1..2) {
@@ -365,6 +376,26 @@ sub Output {
         }
         { 
             $Self->{LanguageObject}->Get($2 || '', $Param{TemplateFile});
+        }egx;
+    }
+    # --
+    # do html quote
+    # --
+    foreach (1..2) {
+        $Output =~ s{
+            \$Quote({"(.+?)"}|{""})
+        }
+        { 
+            my $Text = $2;
+            if ($Text =~ /^(.+?)","(.+?)$/) {
+                $Self->Ascii2Html(Text => $1, Max => $2);
+            }
+            elsif ($Text =~ /^","(.+?)$/) {
+                "";
+            }
+            else {
+                $Self->Ascii2Html(Text => $Text);
+            }
         }egx;
     }
     # --
@@ -629,7 +660,7 @@ sub Ascii2Html {
 
     # max width
     if ($Max) {
-        $Text =~ s/^(.{$Max}).*$/$1\[\.\.\.\]/gs;
+        $Text =~ s/^(.{$Max}).*$/$1\[\.\.\]/gs;
     }
     # newline
     if ($NewLine) {
@@ -972,6 +1003,45 @@ sub Attachment {
     $Output .= "Content-Type: $Param{ContentType}\n\n";
     $Output .= "$Param{Content}";
     return $Output;
+}
+# --
+sub PageNavBar {
+    my $Self = shift;
+    my %Param = @_;
+    my $Limit = $Param{Limit} || 0;
+    $Param{AllHits} = 0 if (!$Param{AllHits});
+    $Param{StartHit} = 0 if (!$Param{AllHits});
+    my $Pages = int(($Param{AllHits} / $Param{SearchPageShown}) + 0.99999);
+    my $Page = int(($Param{StartHit} / $Param{SearchPageShown}) + 0.99999);
+    # build Results (1-5 or 16-30)
+    if ($Param{AllHits} >= ($Param{StartHit}+$Param{SearchPageShown})) {
+        $Param{Results} = $Param{StartHit}."-".($Param{StartHit}+$Param{SearchPageShown}-1);
+    }
+    else {
+        $Param{Results} = "$Param{StartHit}-$Param{AllHits}";
+    }
+    # check total hits
+    if ($Limit == $Param{AllHits}) {
+       $Param{TotalHits} = "<font color=red>$Param{AllHits}</font>";
+    }
+    else {
+       $Param{TotalHits} = $Param{AllHits};
+    }
+    # build page nav bar
+    for (my $i = 1; $i <= $Pages; $i++) {
+        $Param{SearchNavBar} .= " <a href=\"$Self->{Baselink}$Param{Action}&$Param{Link}".
+         "StartHit=". ((($i-1)*$Param{SearchPageShown})+1);
+         $Param{SearchNavBar} .= '">';
+         if ($Page == $i) {
+             $Param{SearchNavBar} .= '<b>'.($i).'</b>';
+         }
+         else {
+             $Param{SearchNavBar} .= ($i);
+         }
+         $Param{SearchNavBar} .= '</a> ';
+    }
+    # create & return output
+    return $Self->Output(TemplateFile => 'AgentUtilSearchNavBar', Data => \%Param);
 }
 # --
 sub BuildDateSelection {
