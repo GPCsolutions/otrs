@@ -2,7 +2,7 @@
 # Kernel/Modules/CustomerZoom.pm - to get a closer view
 # Copyright (C) 2001-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: CustomerZoom.pm,v 1.15.2.1 2004-04-11 16:54:17 martin Exp $
+# $Id: CustomerZoom.pm,v 1.15.2.2 2004-09-23 08:56:09 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -15,7 +15,7 @@ use strict;
 use Kernel::System::State;
 
 use vars qw($VERSION);
-$VERSION = '$Revision: 1.15.2.1 $';
+$VERSION = '$Revision: 1.15.2.2 $';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 # --
@@ -176,6 +176,18 @@ sub _Mask {
     }
     if (!$ArticleID) {
         $ArticleID = $LastCustomerArticleID;
+    }
+    # try to use the latest customer article
+    if (!$ArticleID && $LastCustomerArticleID) {
+        $ArticleID = $LastCustomerArticleID;
+    }
+    # try to use the latest non internal agent article
+    if (!$ArticleID) {
+        foreach my $ArticleTmp (@ArticleBox) {
+            if ($ArticleTmp->{ArticleType} !~ /int/) {
+                $ArticleID = $ArticleTmp->{ArticleID};
+            }
+        }
     }
     # build thread string
     my $ThreadStrg = '';
