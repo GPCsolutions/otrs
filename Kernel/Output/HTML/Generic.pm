@@ -2,7 +2,7 @@
 # Kernel/Output/HTML/Generic.pm - provides generic HTML output
 # Copyright (C) 2001-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: Generic.pm,v 1.72 2003-02-03 18:34:30 martin Exp $
+# $Id: Generic.pm,v 1.72.2.1 2003-02-15 13:27:15 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -22,7 +22,7 @@ use Kernel::Output::HTML::System;
 use Kernel::Output::HTML::Customer;
 
 use vars qw(@ISA $VERSION);
-$VERSION = '$Revision: 1.72 $';
+$VERSION = '$Revision: 1.72.2.1 $';
 $VERSION =~ s/^.*:\s(\d+\.\d+)\s.*$/$1/;
 
 @ISA = (
@@ -1000,7 +1000,8 @@ sub Attachment {
 sub BuildDateSelection {
     my $Self = shift;
     my %Param = @_;
-    my ($s,$m,$h, $D,$M,$Y, $wd,$yd,$dst) = localtime(time);
+    my $PendingDiffTime = $Self->{ConfigObject}->Get('PendingDiffTime') || 0;
+    my ($s,$m,$h, $D,$M,$Y, $wd,$yd,$dst) = localtime(time+$PendingDiffTime);
     $Y = $Y+1900;
     $M++;
     # year
