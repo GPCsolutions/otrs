@@ -2,7 +2,7 @@
 # Kernel/Config/Defaults.pm - Default Config file for OTRS kernel
 # Copyright (C) 2001-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: Defaults.pm,v 1.68.2.6 2003-06-01 17:14:25 martin Exp $
+# $Id: Defaults.pm,v 1.68.2.7 2003-07-13 19:23:21 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see 
 # the enclosed file COPYING for license information (GPL). If you 
@@ -20,7 +20,7 @@ package Kernel::Config::Defaults;
 
 use strict;
 use vars qw(@ISA $VERSION);
-$VERSION = '$Revision: 1.68.2.6 $';
+$VERSION = '$Revision: 1.68.2.7 $';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 # --
@@ -69,6 +69,7 @@ sub LoadDefaults {
 
 #    $Self->{'SendmailModule'} = 'Kernel::System::Email::SMTP';
 #    $Self->{'SendmailModule::Host'} = 'mail.example.com';
+#    $Self->{'SendmailModule::Port'} = '25';
 #    $Self->{'SendmailModule::AuthUser'} = '';
 #    $Self->{'SendmailModule::AuthPassword'} = '';
 
@@ -382,7 +383,7 @@ sub LoadDefaults {
 #    $Self->{TicketStorageModule} = 'Kernel::System::Ticket::ArticleStorageFS';
  
     # UncountedUnlockTime
-    # (don't count this hours as unlock time)
+    # (don't count this hours as unlock time - weekdays: Mon,Tue,Wed,Thu,Fri,Sat,Sun;)
     $Self->{UncountedUnlockTime} = {
         Fri => [ 16,17,18,19,20,21,22,23 ],
         Sat => [ 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23 ],
