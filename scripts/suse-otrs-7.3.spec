@@ -2,7 +2,7 @@
 # RPM spec file for SuSE Linux of the OTRS package
 # Copyright (C) 2002-2003 Martin Edenhofer <bugs+rpm@otrs.org>
 # --
-# $Id: suse-otrs-7.3.spec,v 1.23 2003-04-16 22:35:25 martin Exp $
+# $Id: suse-otrs-7.3.spec,v 1.23.2.1 2003-09-16 08:09:56 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see 
 # the enclosed file COPYING for license information (GPL). If you 
@@ -74,12 +74,10 @@ $RPM_BUILD_ROOT/opt/otrs/bin/SetPermissions.sh $RPM_BUILD_ROOT/opt/otrs $OTRSUSE
 if test -e /opt/otrs/RELEASE; then
     cat /opt/otrs/RELEASE|grep VERSION|sed 's/VERSION = //'|sed 's/ /-/g' > /tmp/otrs-old.tmp
 fi
-
-%post
 # useradd
 export OTRSUSER=otrs
-echo -n "Check OTRS user (/etc/passwd)... " 
-if cat /etc/passwd | grep $OTRSUSER > /dev/null ; then 
+echo -n "Check OTRS user (/etc/passwd)... "
+if cat /etc/passwd | grep $OTRSUSER > /dev/null ; then
     echo "$OTRSUSER exists."
     # update groups
     usermod -g nogroup $OTRSUSER
@@ -89,6 +87,7 @@ else
     useradd $OTRSUSER -d /opt/otrs/ -s /bin/false -g nogroup -c 'OTRS System User' && echo "$OTRSUSER added."
 fi
 
+%post
 # rc.config
 %{fillup_and_insserv -s otrs START_OTRS}
 
