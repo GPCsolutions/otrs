@@ -3,7 +3,7 @@
 # SetPermissions.sh - to set the otrs permissions 
 # Copyright (C) 2002 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: SetPermissions.sh,v 1.16 2003-01-14 20:05:08 martin Exp $
+# $Id: SetPermissions.sh,v 1.16.2.1 2003-03-09 15:59:40 martin Exp $
 # --
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # --
 
-echo "SetPermissions.sh <\$Revision: 1.16 $> - set OTRS file permissions"
+echo "SetPermissions.sh <\$Revision: 1.16.2.1 $> - set OTRS file permissions"
 echo "Copyright (c) 2002 Martin Edenhofer <martin@otrs.org>"
 
 if ! test $1 || ! test $2 || ! test $3; then 
@@ -91,6 +91,7 @@ echo "chown -R $OTRSUSER:$WEBGROUP $OTRSDEST/var/"
 chown -R $OTRSUSER:$WEBGROUP $OTRSDEST/var/
 chmod -R 2775 $OTRSDEST/var/article/
 chmod -R 2775 $OTRSDEST/var/log/
+chmod -R 2775 $OTRSDEST/var/tmp/
 
 # set the var/sessions directory to OTRS and webserver user
 echo "chown -R $WEBUSER:$WEBGROUP $OTRSDEST/var/sessions/"
