@@ -3,7 +3,7 @@
 # pic.pl - the global pic handle for OTRS
 # Copyright (C) 2002-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: pic.pl,v 1.12.2.1 2003-03-02 12:55:40 martin Exp $
+# $Id: pic.pl,v 1.12.2.2 2003-03-09 15:55:50 martin Exp $
 # --
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ use lib "$Bin/../../Kernel/cpan-lib";
 use strict;
 
 use vars qw($VERSION $Debug);
-$VERSION = '$Revision: 1.12.2.1 $';
+$VERSION = '$Revision: 1.12.2.2 $';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 # --
@@ -45,6 +45,7 @@ use Kernel::System::WebRequest;
 use Kernel::System::DB;
 use Kernel::System::AuthSession;
 use Kernel::System::User;
+use Kernel::System::Group;
 use Kernel::System::Queue;
 use Kernel::System::Permission;
 
@@ -72,6 +73,7 @@ $CommonObject{DBObject} = Kernel::System::DB->new(%CommonObject);
 $CommonObject{SessionObject} = Kernel::System::AuthSession->new(%CommonObject);
 $CommonObject{QueueObject} = Kernel::System::Queue->new(%CommonObject);
 $CommonObject{UserObject} = Kernel::System::User->new(%CommonObject);
+$CommonObject{GroupObject} = Kernel::System::Group->new(%CommonObject);
 $CommonObject{PermissionObject} = Kernel::System::Permission->new(%CommonObject);
 
 # --
@@ -157,12 +159,10 @@ EOF
       $Pic = GetImage($Param{Pic}, '', \%CommonObject) 
        || GetImage('help.gif', '', \%CommonObject);
     }
-    print <<EOF
-Content-Disposition: attachment; filename=$Param{Pic}
-Content-Type: $ContentType 
-
-$Pic
-EOF
+    print "Content-Type: $ContentType\n"; 
+    print "Content-Disposition: inline; filename=$Param{Pic}\n";
+    print "\n";
+    print "$Pic\n";
   }
 }
 # --
