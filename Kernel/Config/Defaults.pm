@@ -2,7 +2,7 @@
 # Kernel/Config/Defaults.pm - Default Config file for OTRS kernel
 # Copyright (C) 2002-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: Defaults.pm,v 1.27.2.3 2003-02-15 13:33:30 martin Exp $
+# $Id: Defaults.pm,v 1.27.2.4 2003-03-09 16:06:25 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see 
 # the enclosed file COPYING for license information (GPL). If you 
@@ -20,7 +20,7 @@ package Kernel::Config::Defaults;
 
 use strict;
 use vars qw(@ISA $VERSION);
-$VERSION = '$Revision: 1.27.2.3 $';
+$VERSION = '$Revision: 1.27.2.4 $';
 $VERSION =~ s/^.*:\s(\d+\.\d+)\s.*$/$1/;
 
 # --
@@ -265,13 +265,8 @@ sub LoadDefaults {
     # (If ispell or aspell is available, then we will provide a spelling
     # checker) 
 #    $Self->{SpellChecker} = '';
-    $Self->{SpellChecker} = 'ispell';
+    $Self->{SpellChecker} = '/usr/bin/ispell';
     $Self->{SpellCheckerDictDefault} = 'english';
-    $Self->{SpellCheckerDict} = {
-        # dict => frontend
-        'english' => 'English',
-        'deutsch' => 'Deutsch',
-    };
 
     # DemoSystem
     # (If this is true, no agent preferences, like language and theme, via agent 
@@ -292,6 +287,8 @@ sub LoadDefaults {
     $Self->{StatsPicDir} = '<OTRS_CONFIG_Home>/var/pics/stats';
     # html template die
     $Self->{TemplateDir} = '<OTRS_CONFIG_Home>/Kernel/Output';
+    # tmp dir
+    $Self->{TempDir} = '<OTRS_CONFIG_Home>/var/tmp';
 
     # ----------------------------------------------------#
     # Ticket stuff                                        #
@@ -464,6 +461,26 @@ sub LoadDefaults {
         'pending auto close+',
         'pending auto close-',
     ];
+    # unix_style
+    $Self->{ResponseFormat} = '$Data{"Salutation"}
+$Data{"OrigFrom"} $Text{"wrote"}:
+$Data{"Body"}
+    
+$Data{"StdResponse"}
+
+$Data{"Signature"}
+';
+    # ms_style
+#    $Self->{ResponseFormat} = '$Data{"Salutation"}
+#    
+#$Data{"StdResponse"}
+#
+#$Data{"OrigFrom"} $Text{"wrote"}:
+#$Data{"Body"}
+#
+#$Data{"Signature"}
+#';
+
 
     # ----------------------------------------------------#
     # defaults for bounce                                 #
@@ -772,9 +789,13 @@ sub LoadDefaults {
         Desc => 'Select your default spelling dictionary.',
         Type => 'Generic',
         Data => {
-            # dict => frontend
+            # installed dict catalog (check your insalled catalogues, e. g. deutsch -=> german!)
+            # dict => frontend (ispell)
             'english' => 'English',
             'deutsch' => 'Deutsch',
+            # dict => frontend (aspell)
+#            'english' => 'English',
+#            'german' => 'Deutsch',
         },
         PrefKey => 'UserSpellDict',
         Activ => 1,
