@@ -2,7 +2,7 @@
 # HTML/Agent.pm - provides generic agent HTML output
 # Copyright (C) 2001-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: Agent.pm,v 1.80.2.2 2003-03-09 15:41:56 martin Exp $
+# $Id: Agent.pm,v 1.80.2.3 2003-03-09 18:16:07 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -14,7 +14,7 @@ package Kernel::Output::HTML::Agent;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '$Revision: 1.80.2.2 $';
+$VERSION = '$Revision: 1.80.2.3 $';
 $VERSION =~ s/^.*:\s(\d+\.\d+)\s.*$/$1/;
 
 # --
@@ -244,6 +244,12 @@ sub TicketZoom {
     # create short html customer id
     # --
     $Param{CustomerIDHTML} = $Param{CustomerID} || '';
+    if ($Param{Lock} =~ /unlock/) {
+        $Param{Locked} = 2;
+    }
+    else {
+        $Param{Locked} = 1;
+    }
     # --
     # do some html quoting
     # --
