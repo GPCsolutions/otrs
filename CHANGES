@@ -2,12 +2,21 @@
 # Changes of OTRS 
 # Copyright (C) 2002-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: CHANGES,v 1.56 2003-02-03 22:24:42 martin Exp $
+# $Id: CHANGES,v 1.56.2.1 2003-02-15 13:29:37 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see 
 # the enclosed file COPYING for license information (GPL). If you 
 # did not receive this file, see http://www.gnu.org/licenses/gpl.txt.
 # --
+1.0.2 (2003-??-??)
+- (2002/02/14) fixed default Spelling Dictionary selection and added
+    a preferences option
+ - (2003/02/13) added PendingDiffTime config option (add this time to 
+    shown (selected) pending time) -
+    http://lists.otrs.org/pipermail/otrs/2003-February/000899.html
+
+1.0.1 (2003-02-10)
+ - Released 1.0 RC3 as OTRS 1.0.1
 
 1.0 RC3 (2003-02-03)
  - (2002/02/03) added customer user info on TicketView, TicketZoom and PhoneView
