@@ -2,7 +2,7 @@
 # Kernel/Modules/AgentMove.pm - move tickets to queues 
 # Copyright (C) 2001-2004 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: AgentMove.pm,v 1.27 2004-02-17 22:49:14 martin Exp $
+# $Id: AgentMove.pm,v 1.27.2.1 2004-11-24 10:46:52 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -15,7 +15,7 @@ use strict;
 use Kernel::System::State;
 
 use vars qw($VERSION);
-$VERSION = '$Revision: 1.27 $';
+$VERSION = '$Revision: 1.27.2.1 $';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 # --
@@ -74,6 +74,21 @@ sub Run {
         UserID => $Self->{UserID})) {
         # error screen, don't show ticket
         return $Self->{LayoutObject}->NoPermission(WithHeader => 'yes');
+    }
+    # check if ticket is locked
+    if ($Self->{TicketObject}->IsTicketLocked(TicketID => $Self->{TicketID})) {
+        my ($OwnerID, $OwnerLogin) = $Self->{TicketObject}->CheckOwner(
+            TicketID => $Self->{TicketID},
+        );
+        if ($OwnerID != $Self->{UserID}) {
+            my $Output = $Self->{LayoutObject}->Header(Title => 'Error');
+            $Output .= $Self->{LayoutObject}->Warning(
+                Message => "Can't move, the current owner is $OwnerLogin!",
+                Comment => 'Please change the owner first.',
+            );
+            $Output .= $Self->{LayoutObject}->Footer();
+            return $Output;
+        }
     }
     # move queue
     if (!$Self->{DestQueueID} || $Self->{ExpandQueueUsers}) {
@@ -357,7 +372,7 @@ sub AgentMove {
 sub _GetUsers {
     my $Self = shift;
     my %Param = @_;
-    # get users 
+    # get users
     my %ShownUsers = ();
     my %AllGroupsMembers = $Self->{UserObject}->UserList(
         Type => 'Long',
@@ -378,28 +393,25 @@ sub _GetUsers {
             }
         }
     }
+    $ShownUsers{''} = '-';
     # check show users
     if ($Self->{ConfigObject}->Get('ChangeOwnerToEveryone')) {
         %ShownUsers = %AllGroupsMembers;
     }
-    else {
-        my %Groups = $Self->{GroupObject}->GroupMemberList(
-            UserID => $Self->{UserID},
+    # show all users who are rw in the queue group
+    elsif ($Param{QueueID}) {
+        my $GID = $Self->{QueueObject}->GetQueueGroupID(QueueID => $Param{QueueID});
+        my %MemberList = $Self->{GroupObject}->GroupMemberList(
+            GroupID => $GID,
             Type => 'rw',
             Result => 'HASH',
+            Cached => 1,
         );
-        foreach (keys %Groups) {
-            my %MemberList = $Self->{GroupObject}->GroupMemberList(
-                    GroupID => $_,
-                    Type => 'rw',
-                    Result => 'HASH',
-            );
-            foreach (keys %MemberList) {
-                    $ShownUsers{$_} = $AllGroupsMembers{$_} if ($AllGroupsMembers{$_});
-            }
+        foreach (keys %MemberList) {
+            $ShownUsers{$_} = $AllGroupsMembers{$_};
         }
     }
-    $ShownUsers{''} = '-';
+
     return \%ShownUsers;
 }
 # --
