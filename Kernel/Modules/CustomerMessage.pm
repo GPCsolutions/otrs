@@ -2,7 +2,7 @@
 # Kernel/Modules/CustomerMessage.pm - to handle customer messages
 # Copyright (C) 2002-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: CustomerMessage.pm,v 1.15.2.1 2003-05-29 10:41:20 martin Exp $
+# $Id: CustomerMessage.pm,v 1.15.2.2 2003-12-15 17:44:57 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -17,7 +17,7 @@ use Kernel::System::Queue;
 use Kernel::System::State;
 
 use vars qw($VERSION);
-$VERSION = '$Revision: 1.15.2.1 $';
+$VERSION = '$Revision: 1.15.2.2 $';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 # --
@@ -143,15 +143,24 @@ sub Run {
         my $QueueID = $Self->{TicketObject}->GetQueueIDOfTicketID(
             TicketID => $Self->{TicketID},
         );
-        # get follow up option (possible or not)
-        my $FollowUpPossible = $Self->{QueueObject}->GetFollowUpOption(
-            QueueID => $QueueID,
-        );
-        # get ticket state 
-        my $State = $Self->{TicketObject}->GetState(
+        # get ticket data
+        my %Ticket = $Self->{TicketObject}->GetTicket(
             TicketID => $Self->{TicketID},
         );
-        if ($FollowUpPossible =~ /(new ticket|reject)/i && $State =~ /^close/i) {
+        # get follow up option (possible or not)
+        my $FollowUpPossible = $Self->{QueueObject}->GetFollowUpOption(
+            QueueID => $Ticket{QueueID},
+        ); 
+        # get lock option (should be the ticket locked - if closed - after the follow up)
+        my $Lock = $Self->{QueueObject}->GetFollowUpLockOption(
+            QueueID => $Ticket{QueueID},
+        );
+        # get ticket state details
+        my %State = $Self->{StateObject}->StateGet(
+            ID => $Ticket{StateID},
+            Cache => 1,
+        );
+        if ($FollowUpPossible =~ /(new ticket|reject)/i && $State{TypeName} =~ /^close/i) {
             $Output = $Self->{LayoutObject}->CustomerHeader(Title => 'Error');
             $Output .= $Self->{LayoutObject}->CustomerWarning(
                 Message => 'Can\'t reopen ticket, not possible in this queue!',
@@ -181,16 +190,18 @@ sub Run {
             },
             HistoryType => $Self->{ConfigObject}->Get('CustomerPanelHistoryType'),
             HistoryComment => $Self->{ConfigObject}->Get('CustomerPanelHistoryComment'),
+            AutoResponseType => 'auto follow up',
         )) {
-          # --
           # set state
-          # --
-          my $State = $Self->{TicketObject}->StateIDLookup(StateID => $StateID) || 
+          my %NextStateData = $Self->{StateObject}->StateGet(
+              ID => $StateID,
+          );
+          my $NextState = $NextStateData{Name} ||
             $Self->{ConfigObject}->Get('CustomerPanelDefaultNextComposeType') || 'open';
           $Self->{TicketObject}->SetState(
             TicketID => $Self->{TicketID},
             ArticleID => $ArticleID,
-            State => $State,
+            State => $NextState,
             UserID => $Self->{ConfigObject}->Get('CustomerPanelUserID'),
           );
           # --
@@ -201,6 +212,16 @@ sub Run {
             UserID => $Self->{ConfigObject}->Get('CustomerPanelUserID'),
             Answered => 0,
           );
+          # --
+          # set lock if ticket was cloased
+          # --
+          if ($Lock && $State{TypeName} =~ /^close/i && $Ticket{OwnerID} ne '1') {
+              $Self->{TicketObject}->SetLock(
+                  TicketID => $Self->{TicketID},
+                  Lock => 'lock',
+                  UserID => => $Self->{ConfigObject}->Get('CustomerPanelUserID'),
+              );
+          }
           # --
           # get attachment
           # -- 
