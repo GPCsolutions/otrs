@@ -2,7 +2,7 @@
 # Kernel/Language/cz.pm - provides cz language translation
 # Copyright (C) 2003 Tomas Krmela <tomas.krmela at pvt.cz>
 # --
-# $Id: cz.pm,v 1.1 2003-08-28 16:57:42 martin Exp $
+# $Id: cz.pm,v 1.1.2.1 2003-09-29 20:53:50 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -13,7 +13,7 @@ package Kernel::Language::cz;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '$Revision: 1.1 $';
+$VERSION = '$Revision: 1.1.2.1 $';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 # --
