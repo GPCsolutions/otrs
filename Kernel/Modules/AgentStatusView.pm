@@ -3,7 +3,7 @@
 # Copyright (C) 2002 Phil Davis <phil.davis at itaction.co.uk>
 # Copyright (C) 2002-2003 Martin Edenhofer <martin+code at otrs.org>
 # --   
-# $Id: AgentStatusView.pm,v 1.3 2003-01-03 16:17:30 martin Exp $
+# $Id: AgentStatusView.pm,v 1.3.2.1 2003-03-13 16:50:24 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -15,7 +15,7 @@ package Kernel::Modules::AgentStatusView;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '$Revision: 1.3 $';
+$VERSION = '$Revision: 1.3.2.1 $';
 $VERSION =~ s/^.*:\s(\d+\.\d+)\s.*$/$1/;
 
 # --
@@ -198,7 +198,7 @@ sub ShowTicketStatus {
     # Condense down the subject
     my $TicketHook = $Self->{ConfigObject}->Get('TicketHook');
     my $Subject = $Article{Subject};
-    $Subject =~ s/^RE:*//i; 
+    $Subject =~ s/^RE://i; 
     $Subject =~ s/\[${TicketHook}:\s*\d+\]//;
 
     if (%Article) {
