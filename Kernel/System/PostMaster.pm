@@ -2,7 +2,7 @@
 # Kernel/System/PostMaster.pm - the global PostMaster module for OTRS
 # Copyright (C) 2001-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: PostMaster.pm,v 1.31.2.3 2003-06-22 18:37:36 martin Exp $
+# $Id: PostMaster.pm,v 1.31.2.4 2003-10-29 21:07:08 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see 
 # the enclosed file COPYING for license information (GPL). If you 
@@ -11,7 +11,6 @@
 package Kernel::System::PostMaster;
 
 use strict;
-use Kernel::System::DB;
 use Kernel::System::EmailParser;
 use Kernel::System::Ticket;
 use Kernel::System::Queue;
@@ -22,7 +21,7 @@ use Kernel::System::PostMaster::DestQueue;
 
 use vars qw(@ISA $VERSION);
 
-$VERSION = '$Revision: 1.31.2.3 $';
+$VERSION = '$Revision: 1.31.2.4 $';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 # --
@@ -34,7 +33,6 @@ sub new {
     my $Self = {}; 
     bless ($Self, $Type);
     # get common opjects
-    $Param{DBObject} = Kernel::System::DB->new(%Param);
     foreach (keys %Param) {
         $Self->{$_} = $Param{$_};
     }
@@ -51,7 +49,6 @@ sub new {
     $Self->{Debug} = $Param{Debug} || 0;
 
     # create common objects
-    $Self->{DBObject} = Kernel::System::DB->new(%Param);
     $Self->{TicketObject} = Kernel::System::Ticket->new(%Param);
     $Self->{ParseObject} = Kernel::System::EmailParser->new(
         Email => $Param{Email}, 

@@ -2,13 +2,16 @@
 # Changes of OTRS 
 # Copyright (C) 2002-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: CHANGES,v 1.79.2.16 2003-09-29 20:57:17 martin Exp $
+# $Id: CHANGES,v 1.79.2.17 2003-10-29 21:07:08 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see 
 # the enclosed file COPYING for license information (GPL). If you 
 # did not receive this file, see http://www.gnu.org/licenses/gpl.txt.
 # --
 1.1.4 (2003-??-??)
+ - (2003/10/27) fixed (removed) not needed database connects in
+    PostMaster(POP3).pl stuff (now just 1 database connect, not 3
+    connects)! Thanks to Jens Wilke!
  - (2003/09/39) added Czech translation file - Tomas Krmela!
  - (2003/09/29) added Polish translation file - Tomasz Melissa!
  - (2003/09/16) fixed order of user checking/adding in rpm spec files

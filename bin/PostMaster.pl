@@ -3,7 +3,7 @@
 # PostMaster.pl - the global eMail handle for email2db
 # Copyright (C) 2001-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: PostMaster.pl,v 1.13.2.2 2003-06-01 19:21:56 martin Exp $
+# $Id: PostMaster.pl,v 1.13.2.3 2003-10-29 21:07:08 martin Exp $
 # --
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -35,11 +35,12 @@ use strict;
 umask 002;
 
 use vars qw($VERSION);
-$VERSION = '$Revision: 1.13.2.2 $';
+$VERSION = '$Revision: 1.13.2.3 $';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 use Getopt::Std;
 use Kernel::Config;
+use Kernel::System::DB;
 use Kernel::System::Log;
 use Kernel::System::PostMaster;
 
@@ -73,6 +74,7 @@ $CommonObject{LogObject} = Kernel::System::Log->new(
     LogPrefix => 'OTRS-PM',
     %CommonObject,
 );
+$CommonObject{DBObject} = Kernel::System::DB->new(%CommonObject);
 # debug info
 if ($Opts{'d'}) {
     $CommonObject{LogObject}->Log(
