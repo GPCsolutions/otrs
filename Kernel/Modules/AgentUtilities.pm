@@ -2,7 +2,7 @@
 # Kernel/Modules/AgentUtilities.pm - Utilities for tickets
 # Copyright (C) 2001-2004 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: AgentUtilities.pm,v 1.36.2.1 2004-03-08 10:51:26 martin Exp $
+# $Id: AgentUtilities.pm,v 1.36.2.2 2004-09-10 14:18:58 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -14,18 +14,18 @@ package Kernel::Modules::AgentUtilities;
 use strict;
 use Kernel::System::CustomerUser;
 use Kernel::System::State;
-    
+
 use vars qw($VERSION);
-$VERSION = '$Revision: 1.36.2.1 $';
+$VERSION = '$Revision: 1.36.2.2 $';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
-    
+
 # --
 sub new {
     my $Type = shift;
     my %Param = @_;
 
-    # allocate new hash for object    
-    my $Self = {}; 
+    # allocate new hash for object
+    my $Self = {};
     bless ($Self, $Type);
 
     foreach (keys %Param) {
@@ -63,18 +63,18 @@ sub Run {
     }
     # get signle params
     my %GetParam = ();
-    foreach (qw(TicketNumber From To Cc Subject Body CustomerID CustomerUserLogin 
-      Agent ResultForm TicketFreeKey1 TicketFreeText1 TicketFreeKey2 
+    foreach (qw(TicketNumber From To Cc Subject Body CustomerID CustomerUserLogin
+      Agent ResultForm TicketFreeKey1 TicketFreeText1 TicketFreeKey2
       TicketFreeText2 TicketFreeKey3 TicketFreeText3 TicketFreeKey4 TicketFreeText4
       TicketFreeKey5 TicketFreeText5 TicketFreeKey6 TicketFreeText6
       TicketFreeKey7 TicketFreeText7 TicketFreeKey8 TicketFreeText8
       TimeSearchType
-      TicketCreateTimePointFormat TicketCreateTimePoint 
+      TicketCreateTimePointFormat TicketCreateTimePoint
       TicketCreateTimePointStart
-      TicketCreateTimeStart TicketCreateTimeStartDay TicketCreateTimeStartMonth 
+      TicketCreateTimeStart TicketCreateTimeStartDay TicketCreateTimeStartMonth
       TicketCreateTimeStartYear
-      TicketCreateTimeStop TicketCreateTimeStopDay TicketCreateTimeStopMonth 
-      TicketCreateTimeStopYear 
+      TicketCreateTimeStop TicketCreateTimeStopDay TicketCreateTimeStopMonth
+      TicketCreateTimeStopYear
     )) {
         # load profiles string params (press load profile)
         if (($Self->{Subaction} eq 'LoadProfile' && $Self->{Profile}) || $Self->{TakeLastSearch}) {
@@ -424,13 +424,13 @@ sub MaskForm {
     else {
         my %Groups = $Self->{GroupObject}->GroupMemberList(
             UserID => $Self->{UserID},
-            Type => 'rw',
+            Type => 'ro',
             Result => 'HASH',
         );
         foreach (keys %Groups) {
             my %MemberList = $Self->{GroupObject}->GroupMemberList(
                 GroupID => $_,
-                Type => 'rw',
+                Type => 'ro',
                 Result => 'HASH',
             );
             foreach (keys %MemberList) {
@@ -439,14 +439,14 @@ sub MaskForm {
         }
     }
     $Param{'UserStrg'} = $Self->{LayoutObject}->OptionStrgHashRef(
-        Data => \%ShownUsers, 
+        Data => \%ShownUsers,
         Name => 'UserIDs',
         Multiple => 1,
         Size => 5,
         SelectedIDRefArray => $Param{UserIDs},
     );
     $Param{'ResultFormStrg'} = $Self->{LayoutObject}->OptionStrgHashRef(
-        Data => { 
+        Data => {
             Preview => 'Preview',
             Normal => 'Normal',
             Print => 'Print',
