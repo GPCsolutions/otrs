@@ -2,7 +2,7 @@
 # Kernel/Config/Defaults.pm - Default Config file for OTRS kernel
 # Copyright (C) 2002-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: Defaults.pm,v 1.27.2.1 2003-02-11 12:40:49 wiktor Exp $
+# $Id: Defaults.pm,v 1.27.2.2 2003-02-15 13:25:05 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see 
 # the enclosed file COPYING for license information (GPL). If you 
@@ -20,7 +20,7 @@ package Kernel::Config::Defaults;
 
 use strict;
 use vars qw(@ISA $VERSION);
-$VERSION = '$Revision: 1.27.2.1 $';
+$VERSION = '$Revision: 1.27.2.2 $';
 $VERSION =~ s/^.*:\s(\d+\.\d+)\s.*$/$1/;
 
 # --
@@ -266,6 +266,12 @@ sub LoadDefaults {
     # checker) 
 #    $Self->{SpellChecker} = '';
     $Self->{SpellChecker} = 'ispell';
+    $Self->{SpellCheckerDictDefault} = 'english';
+    $Self->{SpellCheckerDict} = {
+        # dict => frontend
+        'english' => 'English',
+        'deutsch' => 'Deutsch',
+    };
 
     # DemoSystem
     # (If this is true, no agent preferences, like language and theme, via agent 
@@ -416,6 +422,9 @@ sub LoadDefaults {
 #    $Self->{TimeUnits} = ' (minutes)';
 #    $Self->{TimeUnits} = ' (hours)';
     $Self->{TimeUnits} = ' (work units)';
+    # PendingDiffTime
+    # (Time in sec. which "pending date" shows per default) [default: 24*60*60 -=> 1d]
+    $Self->{PendingDiffTime} = 24*60*60;
 
     # ----------------------------------------------------#
     # defaults for add note                               #
@@ -700,7 +709,7 @@ sub LoadDefaults {
             'Language', 'Charset', 'Theme', 'RefreshTime', 'QueueView', 
         ],
         'Other Options' => [
-            'Password', 'CustomQueue', 'FreeText',
+            'Password', 'CustomQueue', 'SpellDict', 'FreeText',
         ],
     };
   
@@ -757,6 +766,19 @@ sub LoadDefaults {
         Desc => 'Select your custom queues.', 
         Activ => 1,
     };
+    $Self->{PreferencesGroups}->{SpellDict} = {
+        Colum => 'Other Options', 
+        Label => 'Default Spell Dict',
+        Desc => 'Select your default spell dictunatie.',
+        Type => 'Generic',
+        Data => {
+            # dict => frontend
+            'english' => 'English',
+            'deutsch' => 'Deutsch',
+        },
+        PrefKey => 'UserSpellDict',
+        Activ => 1,
+    };
 #    $Self->{PreferencesGroups}->{FreeText} = {
 #        Colum => 'Other Options', 
 #        Label => 'Free Text',
@@ -789,7 +811,6 @@ sub LoadDefaults {
         Label => 'Language',
         Desc => 'Select your frontend language.', 
         Type => 'Generic',
-        Data => $Self->Get('DefaultUsedLanguages'),
         PrefKey => 'UserLanguage',
         Activ => 1,
     };
@@ -818,6 +839,7 @@ sub LoadDefaults {
             TicketView => 'Standard',
             TicketViewLite => 'Lite', 
         },
+        DataSelected => 'TicketView',
         PrefKey => 'UserQueueView',
         Activ => 1,
     };

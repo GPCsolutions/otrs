@@ -2,7 +2,7 @@
 # HTML/Agent.pm - provides generic agent HTML output
 # Copyright (C) 2001-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: Agent.pm,v 1.80 2003-02-03 23:40:41 martin Exp $
+# $Id: Agent.pm,v 1.80.2.1 2003-02-15 13:25:05 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -14,7 +14,7 @@ package Kernel::Output::HTML::Agent;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '$Revision: 1.80 $';
+$VERSION = '$Revision: 1.80.2.1 $';
 $VERSION =~ s/^.*:\s(\d+\.\d+)\s.*$/$1/;
 
 # --
@@ -554,6 +554,7 @@ sub AgentTicketPrint {
             %AtmIndex = %{$Article{Atms}};
         }
         my $ATMStrg = '';
+        $Param{"Article::ATM"} = '';
         foreach (keys %AtmIndex) {
           $AtmIndex{$_} = $Self->Ascii2Html(Text => $AtmIndex{$_});
           $Param{"Article::ATM"} .= '<a href="$Env{"Baselink"}Action=AgentAttachment&'.
@@ -1297,6 +1298,13 @@ sub AgentPreferencesForm {
                      $Self->Ascii2Html(Text => $Self->{$PrefKey}) .'">';
             }
           } 
+          elsif ($PrefKey eq 'UserLanguage') {
+              $PrefItem{'Option'} = $Self->OptionStrgHashRef(
+                  Data => $Self->{ConfigObject}->Get('DefaultUsedLanguages'),
+                  Name => "GenericTopic",
+                  SelectedID => $Self->{UserLanguage} || $Self->{ConfigObject}->Get('DefaultLanguage'),
+              );
+          }
           elsif ($Type eq 'CustomQueue') {
             my @CustomQueueIDs = $Self->{QueueObject}->GetAllCustomQueues(UserID => $Self->{UserID});
             # prepar custom selection
@@ -1537,11 +1545,10 @@ sub AgentSpelling {
     # --
     # dict language selection
     # --
-    my %Languages = ( 'English' => 'English', 'German' => 'German' );
     $Param{SpellLanguageString}  .= $Self->OptionStrgHashRef(
-        Data => \%Languages,
+        Data => $Self->{ConfigObject}->Get('SpellCheckerDict'),
         Name => "SpellLanguage",
-        Selected => $Param{SpellLanguage}, 
+        SelectedID => $Param{SpellLanguage},
     );
     # --
     # create & return output
@@ -1551,4 +1558,3 @@ sub AgentSpelling {
 # --  
 
 1;
- 
