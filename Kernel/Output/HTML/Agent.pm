@@ -2,7 +2,7 @@
 # HTML/Agent.pm - provides generic agent HTML output
 # Copyright (C) 2001-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: Agent.pm,v 1.110.2.7 2003-06-17 12:52:43 martin Exp $
+# $Id: Agent.pm,v 1.110.2.8 2003-07-12 08:46:51 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -14,7 +14,7 @@ package Kernel::Output::HTML::Agent;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '$Revision: 1.110.2.7 $';
+$VERSION = '$Revision: 1.110.2.8 $';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 # --
@@ -637,6 +637,7 @@ sub AgentZoom {
         if (my $MimeTypeText = $Self->CheckMimeType(%Param, %Article)) {
             $Param{"Article::TextNote"} = $MimeTypeText;
             $Param{"Article::Text"} = '';
+            $Param{"Article::Body"} = '';
         }
         else {
             # --
