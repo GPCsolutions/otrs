@@ -2,7 +2,7 @@
 # Kernel/Modules/AgentEmail.pm - to compose inital email to customer 
 # Copyright (C) 2001-2004 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: AgentEmail.pm,v 1.4.2.2 2004-03-25 10:46:21 martin Exp $
+# $Id: AgentEmail.pm,v 1.4.2.3 2004-10-08 10:24:14 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -19,7 +19,7 @@ use Kernel::System::State;
 use Mail::Address;
 
 use vars qw($VERSION);
-$VERSION = '$Revision: 1.4.2.2 $';
+$VERSION = '$Revision: 1.4.2.3 $';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 # --
@@ -348,6 +348,7 @@ sub Run {
         $Text .= "\n".$Signature;
         # send email
         my $ArticleID = $Self->{TicketObject}->SendArticle(
+            NoAgentNotify => $NoAgentNotify,
             Attach => [\%UploadStuff],
             ArticleType => 'email-external',
             SenderType => 'agent',
