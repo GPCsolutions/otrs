@@ -2,7 +2,7 @@
 # Kernel/System/Queue.pm - lib for queue funktions
 # Copyright (C) 2001-2003 Martin Edenhofer <martin+code@otrs.org>
 # --
-# $Id: Queue.pm,v 1.28.2.1 2003-05-07 05:33:00 martin Exp $
+# $Id: Queue.pm,v 1.28.2.2 2003-07-13 19:02:09 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see 
 # the enclosed file COPYING for license information (GPL). If you 
@@ -16,7 +16,7 @@ use Kernel::System::StdResponse;
 use Kernel::System::Group;
 
 use vars qw($VERSION);
-$VERSION = '$Revision: 1.28.2.1 $';
+$VERSION = '$Revision: 1.28.2.2 $';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 # --
@@ -46,7 +46,7 @@ sub GetSystemAddress {
     my %Param = @_;
     my %Adresss;
     my $QueueID = $Param{QueueID} || $Self->{QueueID};
-    my $SQL = "SELECT sa.value0, sa.value1 FROM system_address as sa, queue as sq ".
+    my $SQL = "SELECT sa.value0, sa.value1 FROM system_address sa, queue sq ".
 	" WHERE ".
 	" sq.id = $QueueID ".
 	" and ".
@@ -63,7 +63,7 @@ sub GetSalutation {
     my $Self = shift;
     my %Param = @_;
     my $String = '';
-    my $SQL = "SELECT text FROM salutation as sa, queue as sq ".
+    my $SQL = "SELECT text FROM salutation sa, queue sq ".
         " WHERE ".
         " sq.id = $Self->{QueueID} ".
         " and ".
@@ -79,7 +79,7 @@ sub GetSignature {
     my $Self = shift;
     my %Param = @_;
     my $String = '';
-    my $SQL = "SELECT text FROM signature as si, queue as sq ".
+    my $SQL = "SELECT text FROM signature si, queue sq ".
         " WHERE ".
         " sq.id = $Self->{QueueID} ".
         " and ".
@@ -298,25 +298,19 @@ sub GetAllUserIDsByQueueID {
 sub QueueLookup {
     my $Self = shift;
     my %Param = @_;
-    # --
     # check needed stuff
-    # --
     if (!$Param{Queue} && !$Param{QueueID}) {
         $Self->{LogObject}->Log(Priority => 'error', Message => "Got no Queue or QueueID!");
         return;
     }
-    # --
-    # check if we ask the same request?
-    # --
-    if ($Param{QueueID} && $Self->{"QueueLookup$Param{QueueID}"}) {
-        return $Self->{"QueueLookup$Param{QueueID}"};
+    # check if we ask the same request (cache)?
+    if ($Param{QueueID} && $Self->{"QL::Queue$Param{QueueID}"}) {
+        return $Self->{"QL::Queue$Param{QueueID}"};
     }
-    if ($Param{Queue} && $Self->{"QueueLookup$Param{Queue}"}) {
-        return $Self->{"QueueLookup$Param{Queue}"};
+    if ($Param{Queue} && $Self->{"QL::QueueID$Param{Queue}"}) {
+        return $Self->{"QL::QueueID$Param{Queue}"};
     }
-    # --
     # get data
-    # --
     my $SQL = '';
     my $Suffix = '';
     if ($Param{Queue}) {
@@ -332,20 +326,18 @@ sub QueueLookup {
     $Self->{DBObject}->Prepare(SQL => $SQL);
     while (my @Row = $Self->{DBObject}->FetchrowArray()) {
         # store result
-        $Self->{"QueueLookup$Suffix"} = $Row[0];
+        $Self->{"QL::$Suffix$Param{What}"} = $Row[0];
     }
-    # --
     # check if data exists
-    # --
-    if (!exists $Self->{"QueueLookup$Suffix"}) {
+    if (!exists $Self->{"QL::$Suffix$Param{What}"}) {
         $Self->{LogObject}->Log(
             Priority => 'error', 
             Message => "Found no \$$Suffix for $Param{What}!",
         );
         return;
     }
-
-    return $Self->{"QueueLookup$Suffix"};
+    # return result
+    return $Self->{"QL::$Suffix$Param{What}"};
 }
 # --
 sub GetFollowUpOption {
@@ -590,7 +582,7 @@ sub GetTicketIDsByQueue {
     # sql
     # --
     my $SQL = "SELECT st.id, st.tn FROM ".
-    " ticket as st, queue as sq, ticket_state tsd, ticket_lock_type slt ".
+    " ticket st, queue sq, ticket_state tsd, ticket_lock_type slt ".
     " WHERE ".
     " st.ticket_state_id = tsd.id ".
     " AND ".
@@ -623,17 +615,20 @@ sub GetTicketIDsByQueue {
 sub QueueGet {
     my $Self = shift;
     my %Param = @_;
-    # --
     # check needed stuff
-    # --
     if (!$Param{ID} && !$Param{Name}) {
         $Self->{LogObject}->Log(Priority => 'error', Message => "Need ID or Name!");
         return;
     }
-    # --
+    # check if we ask the same request (cache)?
+    if ($Param{Cache} && $Param{ID} && $Self->{"QG::ID$Param{ID}"}) {
+        return %{$Self->{"QG::ID$Param{ID}"}};
+    }
+    if ($Param{Cache} && $Param{Queue} && $Self->{"QL::Name$Param{Name}"}) {
+        return %{$Self->{"QG::Name$Param{Name}"}};
+    }
     # sql 
-    # --
-     my $SQL = "SELECT q.name, q.group_id, q.unlock_timeout, ".
+    my $SQL = "SELECT q.name, q.group_id, q.unlock_timeout, ".
         " q.system_address_id, q.salutation_id, q.signature_id, q.comment, q.valid_id, ".
         " q.escalation_time, q.follow_up_id, q.follow_up_lock, sa.value0, sa.value1, q.id, ".
         " q.move_notify, q.state_notify, q.lock_notify, q.owner_notify ".
@@ -642,10 +637,15 @@ sub QueueGet {
         " WHERE ".
         " q.system_address_id = sa.id ".
         " AND ";
+    my $Suffix = '';
     if ($Param{ID}) {
+        $Param{What} = $Param{ID};
+        $Suffix = 'ID';
         $SQL .= " q.id = $Param{ID}";
     }
     else {
+        $Param{What} = $Param{Name};
+        $Suffix = 'Name';
         $SQL .= " q.name = '$Param{Name}'";
     }
     my %QueueData = ();
@@ -671,25 +671,37 @@ sub QueueGet {
             LockNotify => $Data[16],
             OwnerNotify => $Data[17],
         );
+        $Self->{"QG::$Suffix$Param{What}"} = \%QueueData;
     }
-    return %QueueData;
+    # check if data exists
+    if (!exists $Self->{"QG::$Suffix$Param{What}"}) {
+        $Self->{LogObject}->Log(
+            Priority => 'error', 
+            Message => "Found no \$$Suffix for $Param{What}!",
+        );
+        return;
+    }
+    # return result
+    return %{$Self->{"QG::$Suffix$Param{What}"}};
 }
 # --
 sub QueueUpdate {
     my $Self = shift;
     my %Param = @_;
-    # --
     # check needed stuff
-    # --
     foreach (qw(QueueID Name ValidID GroupID SystemAddressID SalutationID SignatureID UserID MoveNotify StateNotify LockNotify OwnerNotify)) {
       if (!defined ($Param{$_})) {
         $Self->{LogObject}->Log(Priority => 'error', Message => "Need $_!");
         return;
       }
     }
-    # --
+    foreach (qw(QueueID Name ValidID GroupID SystemAddressID SalutationID SignatureID UserID)) {
+      if (!$Param{$_}) {
+        $Self->{LogObject}->Log(Priority => 'error', Message => "Need $_!");
+        return;
+      }
+    }
     # db quote
-    # --
     my %DB = ();
     foreach (keys %Param) {
         $DB{$_} = $Self->{DBObject}->Quote($Param{$_}) || '';
@@ -698,9 +710,7 @@ sub QueueUpdate {
     foreach (qw(UnlockTimeout EscalationTime FollowUpLock MoveNotify StateNotify LockNotify OwnerNotify)) {
         $DB{$_} = 0 if (!$Param{$_});
     }
-    # --
     # check if queue name exists
-    # --
     my %AllQueue = $Self->{DBObject}->GetTableData(
         Table => 'queue',
         What => 'id, name',
@@ -715,9 +725,7 @@ sub QueueUpdate {
             return;
         }
     }
-    # --
     # sql
-    # --
     my $SQL = "UPDATE queue SET name = '$DB{Name}', " .
         " comment = '$DB{Comment}', " .
         " group_id = $DB{GroupID}, " .
@@ -737,9 +745,7 @@ sub QueueUpdate {
         " change_by = $DB{UserID} " .
         " WHERE id = $DB{QueueID}";
     if ($Self->{DBObject}->Do(SQL => $SQL)) {
-        # --
         # updated all sub queue names
-        # --
         my @ParentQueue = split(/::/, $OldQueue{Name});
         my %AllQueue = $Self->{DBObject}->GetTableData(
             Table => 'queue',
