@@ -2,7 +2,7 @@
 # Kernel/System/CustomerUser/LDAP.pm - some customer user functions in LDAP
 # Copyright (C) 2002 Wiktor Wodecki <wiktor.wodecki@net-m.de>
 # --
-# $Id: LDAP.pm,v 1.2 2003-02-03 19:33:20 martin Exp $
+# $Id: LDAP.pm,v 1.2.2.1 2003-02-11 12:27:07 wiktor Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -15,7 +15,7 @@ use strict;
 use Net::LDAP;
 
 use vars qw(@ISA $VERSION);
-$VERSION = '$Revision: 1.2 $';
+$VERSION = '$Revision: 1.2.2.1 $';
 $VERSION =~ s/^.*:\s(\d+\.\d+)\s.*$/$1/;
 
 # --
@@ -276,7 +276,7 @@ sub Destroy {
     # --
     # take down session
     # --
-    $LDAP->unbind;
+    $Self->{LDAP}->unbind;
     return 1;
 }
 # --
