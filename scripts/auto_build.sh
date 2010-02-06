@@ -3,7 +3,7 @@
 # auto_build.sh - build automatically OTRS tar, rpm and src-rpm
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: auto_build.sh,v 1.46.2.2 2010-02-06 01:19:09 martin Exp $
+# $Id: auto_build.sh,v 1.46.2.3 2010-02-06 01:45:40 martin Exp $
 # --
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU AFFERO General Public License as published by
@@ -21,7 +21,7 @@
 # or see L<http://www.gnu.org/licenses/agpl.txt>.
 # --
 
-echo "auto_build.sh - build automatically OTRS tar, rpm and src-rpm <\$Revision: 1.46.2.2 $>"
+echo "auto_build.sh - build automatically OTRS tar, rpm and src-rpm <\$Revision: 1.46.2.3 $>"
 echo "Copyright (C) 2001-2010 OTRS AG, http://otrs.org/\n";
 
 PATH_TO_CVS_SRC=$1
@@ -165,8 +165,8 @@ rm -rf Kernel/Config.pm
 rm -rf install
 rm -rf Kernel/Display
 rm -rf var/sesstions
-rm -rf var/httpd/htdocs/yui/
-rm -rf var/httpd/htdocs/js/thirdparty/
+rm -rf var/httpd/htdocs/yui
+rm -rf var/httpd/htdocs/js/thirdparty
 rm -rf Kernel/System/Ticket/Compress
 rm -rf Kernel/System/Ticket/Crypt
 
