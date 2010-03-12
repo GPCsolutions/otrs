@@ -1,12 +1,12 @@
 # --
 # Kernel/Modules/AdminCustomerUser.pm - to add/update/delete customer user and preferences
-# Copyright (C) 2001-2008 OTRS AG, http://otrs.org/
+# Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: AdminCustomerUser.pm,v 1.55 2008-05-15 22:05:46 mh Exp $
+# $Id: AdminCustomerUser.pm,v 1.55.2.1 2010-03-12 09:46:19 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
-# the enclosed file COPYING for license information (GPL). If you
-# did not receive this file, see http://www.gnu.org/licenses/gpl-2.0.txt.
+# the enclosed file COPYING for license information (AGPL). If you
+# did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
 # --
 
 package Kernel::Modules::AdminCustomerUser;
@@ -19,7 +19,7 @@ use Kernel::System::CustomerCompany;
 use Kernel::System::Valid;
 
 use vars qw($VERSION);
-$VERSION = qw($Revision: 1.55 $) [1];
+$VERSION = qw($Revision: 1.55.2.1 $) [1];
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -336,10 +336,12 @@ sub Run {
                 if ( $Nav eq 'None' ) {
                     $OnClick = " onclick=\"updateMessage('$User')\"";
                 }
-                my $URL = '';
+                my $URL           = '';
+                my $UserHTMLQuote = $Self->{LayoutObject}->LinkEncode($User);
+                my $UserQuote     = $Self->{LayoutObject}->Ascii2Html( Text => $User );
                 if ( $Self->{ConfigObject}->Get('Frontend::Module')->{AgentTicketPhone} ) {
                     $URL
-                        .= "<a href=\"\$Env{\"CGIHandle\"}?Action=AgentTicketPhone&Subaction=StoreNew&ExpandCustomerName=2&CustomerUser=$User\"$OnClick>"
+                        .= "<a href=\"\$Env{\"CGIHandle\"}?Action=AgentTicketPhone&Subaction=StoreNew&ExpandCustomerName=2&CustomerUser=$UserHTMLQuote\"$OnClick>"
                         . $Self->{LayoutObject}->{LanguageObject}->Get('PhoneView') . "</a>";
                 }
                 if ( $Self->{ConfigObject}->Get('Frontend::Module')->{AgentTicketEmail} ) {
@@ -347,14 +349,14 @@ sub Run {
                         $URL .= " - ";
                     }
                     $URL
-                        .= "<a href=\"\$Env{\"CGIHandle\"}?Action=AgentTicketEmail&Subaction=StoreNew&ExpandCustomerName=2&CustomerUser=$User\"$OnClick>"
+                        .= "<a href=\"\$Env{\"CGIHandle\"}?Action=AgentTicketEmail&Subaction=StoreNew&ExpandCustomerName=2&CustomerUser=$UserHTMLQuote\"$OnClick>"
                         . $Self->{LayoutObject}->{LanguageObject}->Get('Compose Email') . "</a>";
                 }
                 if ($URL) {
                     $Output
                         .= $Self->{LayoutObject}->Notify(
                         Data => $Self->{LayoutObject}->{LanguageObject}->Get(
-                            'Added User "%s"", "' . $User
+                            'Added User "%s"", "' . $UserQuote
                             )
                             . " ( $URL )!",
                         );
@@ -363,7 +365,7 @@ sub Run {
                     $Output
                         .= $Self->{LayoutObject}->Notify(
                         Data => $Self->{LayoutObject}->{LanguageObject}->Get(
-                            'Added User "%s"", "' . $User
+                            'Added User "%s"", "' . $UserQuote
                             )
                             . "!",
                         );
