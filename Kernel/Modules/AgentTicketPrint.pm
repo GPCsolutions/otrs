@@ -2,7 +2,7 @@
 # Kernel/Modules/AgentTicketPrint.pm - print layout for agent interface
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: AgentTicketPrint.pm,v 1.69 2010-02-03 13:05:24 mb Exp $
+# $Id: AgentTicketPrint.pm,v 1.69.2.1 2010-04-07 21:20:55 dz Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -19,7 +19,7 @@ use Kernel::System::LinkObject;
 use Kernel::System::PDF;
 
 use vars qw($VERSION);
-$VERSION = qw($Revision: 1.69 $) [1];
+$VERSION = qw($Revision: 1.69.2.1 $) [1];
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -217,6 +217,29 @@ sub Run {
             %Page, FooterRight => $Page{PageText} . ' ' . $Page{PageCount},
         );
         $Page{PageCount}++;
+
+        # type of print tag
+        my $PrintTag = '';
+
+        $PrintTag = ($ArticleID) ? 'Article' : 'Ticket';
+        $PrintTag = ( $Self->{LayoutObject}->{LanguageObject}->Get($PrintTag) ) . ' ' .
+            ( $Self->{LayoutObject}->{LanguageObject}->Get('Print') );
+
+        # output headline
+        $Self->{PDFObject}->Text(
+            Text     => $PrintTag,
+            Height   => 9,
+            Type     => 'Cut',
+            Font     => 'ProportionalBold',
+            Align    => 'right',
+            FontSize => 9,
+            Color    => '#666666',
+        );
+
+        $Self->{PDFObject}->PositionSet(
+            Move => 'relativ',
+            Y    => -6,
+        );
 
         # output ticket infos
         $Self->_PDFOutputTicketInfos(
@@ -927,9 +950,9 @@ sub _PDFOutputArticles {
     }
     my %Page = %{ $Param{PageData} };
 
-    my $FirstArticle = 1;
+    my $ArticleCounter = 1;
     for my $ArticleTmp ( @{ $Param{ArticleData} } ) {
-        if ($FirstArticle) {
+        if ( $ArticleCounter == 1 ) {
             $Self->{PDFObject}->PositionSet(
                 Move => 'relativ',
                 Y    => -15,
@@ -948,7 +971,6 @@ sub _PDFOutputArticles {
                 Move => 'relativ',
                 Y    => 2,
             );
-            $FirstArticle = 0;
         }
 
         my %Article = %{$ArticleTmp};
@@ -971,6 +993,27 @@ sub _PDFOutputArticles {
         # generate article info table
         my %TableParam1;
         my $Row = 0;
+
+        $Self->{PDFObject}->PositionSet(
+            Move => 'relativ',
+            Y    => -6,
+        );
+
+        # article number tag
+        $Self->{PDFObject}->Text(
+            Text     => '    # ' . $ArticleCounter,
+            Height   => 7,
+            Type     => 'Cut',
+            Font     => 'ProportionalBoldItalic',
+            FontSize => 7,
+            Color    => '#666666',
+        );
+
+        $Self->{PDFObject}->PositionSet(
+            Move => 'relativ',
+            Y    => 2,
+        );
+
         for ( 'From', 'To', 'Cc', 'Accounted time', 'Subject', ) {
             if ( $Article{$_} ) {
                 $TableParam1{CellData}[$Row][0]{Content}
@@ -1078,6 +1121,7 @@ sub _PDFOutputArticles {
                 $Page{PageCount}++;
             }
         }
+        $ArticleCounter++;
     }
     return 1;
 }

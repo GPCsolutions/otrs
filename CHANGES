@@ -2,7 +2,7 @@
 # CHANGES - change log of OTRS
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: CHANGES,v 1.1190.2.2 2010-04-06 23:00:31 cr Exp $
+# $Id: CHANGES,v 1.1190.2.3 2010-04-07 21:20:55 dz Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -10,6 +10,8 @@
 # --
 
 2.5.0 beta1 (????/??/??)
+ - (2010/04/07) Fixed bug#5118 - Printing an article should indicate that
+    only 1 article is printed not the whole ticket.
  - (2010/03/24) Reworked Kernel::System::Encode API to have more intuitive
     wording (is still compat. to OTRS 1.x and 2.x).
 
