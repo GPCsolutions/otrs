@@ -2,7 +2,7 @@
 # Kernel/System/JSON.pm - Wrapper functions for encoding and decoding JSON
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: JSON.pm,v 1.1.2.1 2010-04-15 10:43:34 mae Exp $
+# $Id: JSON.pm,v 1.1.2.2 2010-04-15 10:47:20 mae Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -17,7 +17,7 @@ use warnings;
 use JSON;
 
 use vars qw(@ISA $VERSION);
-$VERSION = qw($Revision: 1.1.2.1 $) [1];
+$VERSION = qw($Revision: 1.1.2.2 $) [1];
 
 =head1 NAME
 
@@ -51,7 +51,11 @@ create a JSON object
         EncodeObject => $EncodeObject,
     );
 
-    my $JSONObject = Kernel::System::JSON->new();
+    my $JSONObject = Kernel::System::JSON->new(
+        ConfigObject => $ConfigObject,
+        EncodeObject => $EncodeObject,
+        LogObject    => $LogObject,
+    );
 
 =cut
 
@@ -139,6 +143,6 @@ did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 
 =head1 VERSION
 
-$Revision: 1.1.2.1 $ $Date: 2010-04-15 10:43:34 $
+$Revision: 1.1.2.2 $ $Date: 2010-04-15 10:47:20 $
 
 =cut
