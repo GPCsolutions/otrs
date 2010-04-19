@@ -2,7 +2,7 @@
 # CHANGES - change log of OTRS
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: CHANGES,v 1.1190.2.8 2010-04-15 19:50:07 mh Exp $
+# $Id: CHANGES,v 1.1190.2.9 2010-04-19 21:20:26 dz Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -10,6 +10,8 @@
 # --
 
 2.5.0 beta1 (????/??/??)
+ - (2010/04/19) Fixed wrong tag "User:Role" to "Response:Attachment" in
+    Responses <-> Attachments Management
  - (2010/04/12) Fixed Bug 5108 - The RSS date was not displayed correctly.
  - (2010/04/12) Fixed Bug 5112 - Redirecting to a valid screen after unsubscribing
     a ticket that is on a queue in which the agent has no permissions.

@@ -2,7 +2,7 @@
 # AdminResponseAttachmentForm.dtl - provides HTML form for AdminInterface
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: AdminResponseAttachmentForm.dtl,v 1.13 2010-02-05 13:58:23 mn Exp $
+# $Id: AdminResponseAttachmentForm.dtl,v 1.13.2.1 2010-04-19 21:20:26 dz Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -22,10 +22,10 @@
             <table width="700" cellspacing="0" cellpadding="4">
                 <tr>
                     <td class="contenthead" width="50%">
-                        $Text{"User"}:$Text{"Role"} (1:n)
+                        $Text{"Response"}:$Text{"Attachment"} (1:n)
                     </td>
                     <td class="contenthead" width="50%">
-                        $Text{"User"}:$Text{"Role"} (n:1)
+                        $Text{"Response"}:$Text{"Attachment"} (n:1)
                     </td>
                 </tr>
                 <tr class="contentbody">
