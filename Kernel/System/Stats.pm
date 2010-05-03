@@ -2,7 +2,7 @@
 # Kernel/System/Stats.pm - all stats core functions
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: Stats.pm,v 1.89 2010-03-25 14:44:11 martin Exp $
+# $Id: Stats.pm,v 1.89.2.1 2010-05-03 17:02:43 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -19,7 +19,7 @@ use Date::Pcalc qw(:all);
 use Kernel::System::XML;
 
 use vars qw(@ISA $VERSION);
-$VERSION = qw($Revision: 1.89 $) [1];
+$VERSION = qw($Revision: 1.89.2.1 $) [1];
 
 =head1 SYNOPSIS
 
@@ -153,22 +153,22 @@ sub StatsAdd {
     my $StatNumber = $StatID + $Self->{ConfigObject}->Get('Stats::StatsStartNumber');
     my %MetaData   = (
         Created => [
-            Content => $TimeStamp,
+            { Content => $TimeStamp },
         ],
         CreatedBy => [
-            Content => $Self->{UserID},
+            { Content => $Self->{UserID} },
         ],
         Changed => [
-            Content => $TimeStamp,
+            { Content => $TimeStamp },
         ],
         ChangedBy => [
-            Content => $Self->{UserID},
+            { Content => $Self->{UserID} },
         ],
         Valid => [
-            Content => 1,
+            { Content => 1 },
         ],
         StatNumber => [
-            Content => $StatNumber,
+            { Content => $StatNumber },
         ],
     );
 
@@ -3273,6 +3273,6 @@ did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 
 =head1 VERSION
 
-$Revision: 1.89 $ $Date: 2010-03-25 14:44:11 $
+$Revision: 1.89.2.1 $ $Date: 2010-05-03 17:02:43 $
 
 =cut
