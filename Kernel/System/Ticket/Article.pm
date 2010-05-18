@@ -2,7 +2,7 @@
 # Kernel/System/Ticket/Article.pm - global article module for OTRS kernel
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: Article.pm,v 1.246.2.3 2010-04-22 19:39:18 martin Exp $
+# $Id: Article.pm,v 1.246.2.4 2010-05-18 08:42:53 bes Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -20,7 +20,7 @@ use Kernel::System::TemplateGenerator;
 use Kernel::System::Notification;
 
 use vars qw($VERSION);
-$VERSION = qw($Revision: 1.246.2.3 $) [1];
+$VERSION = qw($Revision: 1.246.2.4 $) [1];
 
 =head1 NAME
 
@@ -305,7 +305,7 @@ sub ArticleCreate {
         $Param{ArticleType} = $Self->ArticleTypeLookup( ArticleTypeID => $Param{ArticleTypeID} );
     }
 
-    # reset escalation time if customer send an update
+    # reset escalation time if customer sent an update
     if ( $Param{SenderType} eq 'customer' ) {
 
         # check if latest article comes from customer
@@ -3159,6 +3159,6 @@ did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 
 =head1 VERSION
 
-$Revision: 1.246.2.3 $ $Date: 2010-04-22 19:39:18 $
+$Revision: 1.246.2.4 $ $Date: 2010-05-18 08:42:53 $
 
 =cut
