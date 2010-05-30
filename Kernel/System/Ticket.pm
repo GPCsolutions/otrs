@@ -2,7 +2,7 @@
 # Kernel/System/Ticket.pm - all ticket functions
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: Ticket.pm,v 1.455.2.1 2010-04-13 07:18:25 bes Exp $
+# $Id: Ticket.pm,v 1.455.2.2 2010-05-30 13:04:20 bes Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -35,7 +35,7 @@ use Kernel::System::LinkObject;
 use Kernel::System::EventHandler;
 
 use vars qw(@ISA $VERSION);
-$VERSION = qw($Revision: 1.455.2.1 $) [1];
+$VERSION = qw($Revision: 1.455.2.2 $) [1];
 
 =head1 NAME
 
@@ -2826,9 +2826,6 @@ Returns:
 
 sub TicketFreeTextGet {
     my ( $Self, %Param ) = @_;
-
-    my $Value = $Param{Value} || '';
-    my $Key   = $Param{Key}   || '';
 
     # check needed stuff
     for (qw(Type)) {
@@ -7911,6 +7908,6 @@ did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 
 =head1 VERSION
 
-$Revision: 1.455.2.1 $ $Date: 2010-04-13 07:18:25 $
+$Revision: 1.455.2.2 $ $Date: 2010-05-30 13:04:20 $
 
 =cut
