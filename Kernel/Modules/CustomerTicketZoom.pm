@@ -2,7 +2,7 @@
 # Kernel/Modules/CustomerTicketZoom.pm - to get a closer view
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: CustomerTicketZoom.pm,v 1.59 2010-02-26 20:35:35 martin Exp $
+# $Id: CustomerTicketZoom.pm,v 1.59.2.1 2010-05-31 15:21:41 mb Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -18,7 +18,7 @@ use Kernel::System::Web::UploadCache;
 use Kernel::System::State;
 
 use vars qw($VERSION);
-$VERSION = qw($Revision: 1.59 $) [1];
+$VERSION = qw($Revision: 1.59.2.1 $) [1];
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -211,17 +211,20 @@ sub Run {
                 return $Output;
             }
 
-            # set state
-            my %NextStateData = $Self->{StateObject}->StateGet( ID => $GetParam{StateID} );
-            my $NextState = $NextStateData{Name}
-                || $Self->{Config}->{StateDefault}
-                || 'open';
-            $Self->{TicketObject}->StateSet(
-                TicketID  => $Self->{TicketID},
-                ArticleID => $ArticleID,
-                State     => $NextState,
-                UserID    => $Self->{ConfigObject}->Get('CustomerPanelUserID'),
-            );
+            if ( $Self->{Config}->{State} ) {
+
+                # set state
+                my %NextStateData = $Self->{StateObject}->StateGet( ID => $GetParam{StateID} );
+                my $NextState = $NextStateData{Name}
+                    || $Self->{Config}->{StateDefault}
+                    || 'open';
+                $Self->{TicketObject}->StateSet(
+                    TicketID  => $Self->{TicketID},
+                    ArticleID => $ArticleID,
+                    State     => $NextState,
+                    UserID    => $Self->{ConfigObject}->Get('CustomerPanelUserID'),
+                );
+            }
 
             # set priority
             if ( $Self->{Config}->{Priority} && $GetParam{PriorityID} ) {
