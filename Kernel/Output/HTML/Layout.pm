@@ -2,7 +2,7 @@
 # Kernel/Output/HTML/Layout.pm - provides generic HTML output
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: Layout.pm,v 1.218.2.2 2010-04-15 10:43:34 mae Exp $
+# $Id: Layout.pm,v 1.218.2.3 2010-06-02 18:15:15 dz Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -21,7 +21,7 @@ use Kernel::System::HTMLUtils;
 use Kernel::System::JSON;
 
 use vars qw(@ISA $VERSION);
-$VERSION = qw($Revision: 1.218.2.2 $) [1];
+$VERSION = qw($Revision: 1.218.2.3 $) [1];
 
 =head1 NAME
 
@@ -3155,6 +3155,9 @@ sub RichTextDocumentComplete {
         $Param{String} =~ s/<body/<body dir="$Self->{TextDirection}"/i;
     }
 
+    # filter links in response
+    $Param{String} = $Self->HTMLLinkQuote( String => $Param{String}, );
+
     return $Param{String};
 }
 
@@ -4362,6 +4365,6 @@ did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 
 =head1 VERSION
 
-$Revision: 1.218.2.2 $ $Date: 2010-04-15 10:43:34 $
+$Revision: 1.218.2.3 $ $Date: 2010-06-02 18:15:15 $
 
 =cut
