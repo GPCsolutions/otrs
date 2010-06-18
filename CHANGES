@@ -2,7 +2,7 @@
 # CHANGES - change log of OTRS
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: CHANGES,v 1.1190.2.16 2010-06-18 19:50:21 cr Exp $
+# $Id: CHANGES,v 1.1190.2.17 2010-06-18 19:52:41 cr Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -10,7 +10,7 @@
 # --
 
 2.5.0 beta1 (????/??/??)
- - (2010/06/18) Updated JSON Pure Perl Module to version 2.21
+ - (2010/06/18) Updated CPAN module JSON::PP to version 2.21
  - (2010/04/19) Fixed wrong tag "User:Role" to "Response:Attachment" in
     Responses <-> Attachments Management
  - (2010/04/12) Fixed Bug 5108 - The RSS date was not displayed correctly.
