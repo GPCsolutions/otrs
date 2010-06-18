@@ -1,9 +1,9 @@
 #!/usr/bin/perl -w
 # --
 # bin/otrs.checkModules.pl - to check needed cpan framework modules
-# Copyright (C) 2001-2009 OTRS AG, http://otrs.org/
+# Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: otrs.checkModules.pl,v 1.1 2009-11-03 16:06:41 mn Exp $
+# $Id: otrs.checkModules.pl,v 1.1.2.1 2010-06-18 19:50:55 cr Exp $
 # --
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU AFFERO General Public License as published by
@@ -233,6 +233,26 @@ my @NeededModules = (
         Required => 0,
         Comment  => 'Required for faster xml handling.'
     },
+    {
+        Module   => 'JSON',
+        Version  => '2.0',
+        Required => 1,
+        Comment  => 'Required for AJAX/Java Script handling',
+        Depends  => [
+            {
+                Module   => 'JSON::PP',
+                Version  => '2.0',
+                Required => 1,
+                Comment  => 'Required for AJAX/Java Script handling',
+            },
+            {
+                Module   => 'JSON::XS',
+                Required => 0,
+                Comment  => 'Required for AJAX/Java Script handling',
+            },
+        ],
+    },
+
 );
 
 # try to load modules
