@@ -1,8 +1,8 @@
 # --
 # AgentStatsOverview.dtl - provides HTML form for lists stats
-# Copyright (C) 2001-2008 OTRS AG, http://otrs.org/
+# Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: AgentStatsOverview.dtl,v 1.4 2008-04-02 08:59:22 ot Exp $
+# $Id: AgentStatsOverview.dtl,v 1.4.2.1 2010-06-24 14:00:34 mh Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -26,7 +26,7 @@
 #  </tr>
   <tr>
     <td class="menu">
-      $Text{"Results"}: <b>$QData{"Result"}</b> - $Text{"Total hits"}: <b>$Data{"TotalHits"}</b> - $Text{"Page"}: $Data{"SiteNavBar"}
+      $Text{"Results"}: <b>$QData{"Result"}</b> - $Text{"Total hits"}: <b>$QData{"TotalHits"}</b> - $Text{"Page"}: $Data{"SiteNavBar"}
     </td>
   </tr>
   <tr>
@@ -35,22 +35,22 @@
         <tr><td></td></tr>
         <tr class="contenthead">
           <td>$Text{"$Config{"Stats::StatsHook"}"}
-            <a href="$Env{"Baselink"}Action=$Env{"Action"}&Subaction=Overview&OrderBy=ID&Direction=ASC&StartHit=$Data{"StartHit"}"><img border="0" src="$Env{"Images"}down-small.png"></a>&nbsp;/
-            <a href="$Env{"Baselink"}Action=$Env{"Action"}&Subaction=Overview&OrderBy=ID&Direction=DESC&StartHit=$Data{"StartHit"}"><img border="0" src="$Env{"Images"}up-small.png"></a>
+            <a href="$Env{"Baselink"}Action=$Env{"Action"}&Subaction=Overview&OrderBy=ID&Direction=ASC&StartHit=$LQData{"StartHit"}"><img border="0" src="$Env{"Images"}down-small.png"></a>&nbsp;/
+            <a href="$Env{"Baselink"}Action=$Env{"Action"}&Subaction=Overview&OrderBy=ID&Direction=DESC&StartHit=$LQData{"StartHit"}"><img border="0" src="$Env{"Images"}up-small.png"></a>
           </td>
           <td>$Text{"Title"}
-            <a href="$Env{"Baselink"}Action=$Env{"Action"}&Subaction=Overview&OrderBy=Title&Direction=ASC&StartHit=$Data{"StartHit"}"><img border="0" src="$Env{"Images"}down-small.png"></a>&nbsp;/
-            <a href="$Env{"Baselink"}Action=$Env{"Action"}&Subaction=Overview&OrderBy=Title&Direction=DESC&StartHit=$Data{"StartHit"}"><img border="0" src="$Env{"Images"}up-small.png"></a>
+            <a href="$Env{"Baselink"}Action=$Env{"Action"}&Subaction=Overview&OrderBy=Title&Direction=ASC&StartHit=$LQData{"StartHit"}"><img border="0" src="$Env{"Images"}down-small.png"></a>&nbsp;/
+            <a href="$Env{"Baselink"}Action=$Env{"Action"}&Subaction=Overview&OrderBy=Title&Direction=DESC&StartHit=$LQData{"StartHit"}"><img border="0" src="$Env{"Images"}up-small.png"></a>
           </td>
           <td>$Text{"Object"}
-            <a href="$Env{"Baselink"}Action=$Env{"Action"}&Subaction=Overview&OrderBy=Object&Direction=ASC&StartHit=$Data{"StartHit"}"><img border="0" src="$Env{"Images"}down-small.png"></a>&nbsp;/
-            <a href="$Env{"Baselink"}Action=$Env{"Action"}&Subaction=Overview&OrderBy=Object&Direction=DESC&StartHit=$Data{"StartHit"}"><img border="0" src="$Env{"Images"}up-small.png"></a>
+            <a href="$Env{"Baselink"}Action=$Env{"Action"}&Subaction=Overview&OrderBy=Object&Direction=ASC&StartHit=$LQData{"StartHit"}"><img border="0" src="$Env{"Images"}down-small.png"></a>&nbsp;/
+            <a href="$Env{"Baselink"}Action=$Env{"Action"}&Subaction=Overview&OrderBy=Object&Direction=DESC&StartHit=$LQData{"StartHit"}"><img border="0" src="$Env{"Images"}up-small.png"></a>
           </td>
           <td>$Text{"Description"}</td>
         </tr>
 <!-- dtl:block:Result -->
         <tr class="$QData{"css"}">
-          <td class="$Data{"TextCss"}">
+          <td class="$QData{"TextCss"}">
             <a href="$Env{"Baselink"}Action=$Env{"Action"}&Subaction=View&StatID=$Data{"StatID"}">
             $Data{"StatNumber"}
             </a>

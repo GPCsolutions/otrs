@@ -2,7 +2,7 @@
 # CHANGES - change log of OTRS
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: CHANGES,v 1.762.2.68 2010-02-04 22:31:13 martin Exp $
+# $Id: CHANGES,v 1.762.2.69 2010-06-24 14:00:34 mh Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -672,6 +672,7 @@
  - (2007/09/13) Improved report overview of perfornance log.
 
 2.2.9 (2010/02/08)
+ - (2010/06/24) Fixed bug# 5497 - Missing HTML quoting in stats module.
  - (2010/02/04) Fixed SQL quoting issue (see also
     http://otrs.org/advisory/OSA-2010-01-en/).
 
