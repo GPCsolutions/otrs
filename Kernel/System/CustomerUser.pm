@@ -2,7 +2,7 @@
 # Kernel/System/CustomerUser.pm - some customer user functions
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: CustomerUser.pm,v 1.57.2.1 2010-04-14 19:40:58 martin Exp $
+# $Id: CustomerUser.pm,v 1.57.2.2 2010-06-27 10:04:30 bes Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -17,7 +17,7 @@ use warnings;
 use Kernel::System::CustomerCompany;
 
 use vars qw(@ISA $VERSION);
-$VERSION = qw($Revision: 1.57.2.1 $) [1];
+$VERSION = qw($Revision: 1.57.2.2 $) [1];
 
 =head1 NAME
 
@@ -95,7 +95,7 @@ sub new {
     # load customer user backend module
     for my $Count ( '', 1 .. 10 ) {
 
-        # next if customer backend is used
+        # next if customer backend is not used
         next if !$Self->{ConfigObject}->Get("CustomerUser$Count");
 
         my $GenericModule = $Self->{ConfigObject}->Get("CustomerUser$Count")->{Module};
@@ -129,7 +129,7 @@ sub CustomerSourceList {
     my %Data;
     for my $Count ( '', 1 .. 10 ) {
 
-        # next if customer backend is used
+        # next if customer backend is not used
         next if !$Self->{ConfigObject}->Get("CustomerUser$Count");
 
         $Data{"CustomerUser$Count"} = $Self->{ConfigObject}->Get("CustomerUser$Count")->{Name}
@@ -171,7 +171,7 @@ sub CustomerSearch {
     my %Data;
     for my $Count ( '', 1 .. 10 ) {
 
-        # next if customer backend is used
+        # next if customer backend is not used
         next if !$Self->{"CustomerUser$Count"};
 
         # get customer search result of backend and merge it
@@ -197,7 +197,7 @@ sub CustomerUserList {
     my %Data;
     for my $Count ( '', 1 .. 10 ) {
 
-        # next if customer backend is used
+        # next if customer backend is not used
         next if !$Self->{"CustomerUser$Count"};
 
         # get customer list result of backend and merge it
@@ -222,7 +222,7 @@ sub CustomerName {
 
     for my $Count ( '', 1 .. 10 ) {
 
-        # next if customer backend is used
+        # next if customer backend is not used
         next if !$Self->{"CustomerUser$Count"};
 
         # get customer name and return it
@@ -249,7 +249,7 @@ sub CustomerIDs {
 
     for my $Count ( '', 1 .. 10 ) {
 
-        # next if customer backend is used
+        # next if customer backend is not used
         next if !$Self->{"CustomerUser$Count"};
 
         # get customer id's and return it
@@ -276,7 +276,7 @@ sub CustomerUserDataGet {
 
     for my $Count ( '', 1 .. 10 ) {
 
-        # next if customer backend is used
+        # next if customer backend is not used
         next if !$Self->{"CustomerUser$Count"};
 
         # next if no customer got found
@@ -561,7 +561,7 @@ sub SearchPreferences {
     my %Data;
     for my $Count ( '', 1 .. 10 ) {
 
-        # next if customer backend is used
+        # next if customer backend is not used
         next if !$Self->{"CustomerUser$Count"};
 
         # get customer search result of backend and merge it
@@ -671,16 +671,16 @@ sub TokenCheck {
 
 =head1 TERMS AND CONDITIONS
 
-This software is part of the OTRS project (http://otrs.org/).
+This software is part of the OTRS project (L<http://otrs.org/>).
 
 This software comes with ABSOLUTELY NO WARRANTY. For details, see
 the enclosed file COPYING for license information (AGPL). If you
-did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
+did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
 
 =cut
 
 =head1 VERSION
 
-$Revision: 1.57.2.1 $ $Date: 2010-04-14 19:40:58 $
+$Revision: 1.57.2.2 $ $Date: 2010-06-27 10:04:30 $
 
 =cut
