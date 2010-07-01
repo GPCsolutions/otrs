@@ -2,7 +2,7 @@
 # Kernel/Modules/AgentTicketBulk.pm - to do bulk actions on tickets
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: AgentTicketBulk.pm,v 1.47 2010-03-24 11:15:24 martin Exp $
+# $Id: AgentTicketBulk.pm,v 1.47.2.1 2010-07-01 15:45:03 mb Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -19,7 +19,7 @@ use Kernel::System::Priority;
 use Kernel::System::LinkObject;
 
 use vars qw($VERSION);
-$VERSION = qw($Revision: 1.47 $) [1];
+$VERSION = qw($Revision: 1.47.2.1 $) [1];
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -85,7 +85,7 @@ sub Run {
 
             # error screen, don't show ticket
             $Output .= $Self->{LayoutObject}->Notify(
-                Info => 'No access to %s!", "$Quote{"' . $Ticket{TicketNumber} . '"}',
+                Info => 'No access to %s!", "' . $Ticket{TicketNumber},
             );
             next;
         }
@@ -98,9 +98,7 @@ sub Run {
             );
             if ( !$AccessOk ) {
                 $Output .= $Self->{LayoutObject}->Notify(
-                    Info => 'Ticket %s is locked for an other agent!", "$Quote{"'
-                        . $Ticket{TicketNumber}
-                        . '"}',
+                    Info => 'Ticket %s is locked for an other agent!", "' . $Ticket{TicketNumber},
                 );
                 next;
             }
