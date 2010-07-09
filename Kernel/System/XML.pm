@@ -2,7 +2,7 @@
 # Kernel/System/XML.pm - lib xml
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: XML.pm,v 1.98 2010-03-02 12:04:01 bes Exp $
+# $Id: XML.pm,v 1.98.2.1 2010-07-09 09:29:58 ub Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -17,7 +17,7 @@ use warnings;
 use Kernel::System::Cache;
 
 use vars qw($VERSION $S);
-$VERSION = qw($Revision: 1.98 $) [1];
+$VERSION = qw($Revision: 1.98.2.1 $) [1];
 
 =head1 NAME
 
@@ -394,7 +394,7 @@ sub XMLHashSearch {
     }
 
     return if !$Self->{DBObject}->Prepare(
-        SQL  => 'SELECT DISTINCT(xml_key) FROM xml_storage WHERE xml_type = ? GROUP BY xml_key',
+        SQL  => 'SELECT DISTINCT(xml_key) FROM xml_storage WHERE xml_type = ?',
         Bind => [ \$Param{Type} ],
     );
 
@@ -439,9 +439,9 @@ sub XMLHashSearch {
             }
 
             # assemble the SQL
-            my $SQL = 'SELECT DISTINCT(xml_key) FROM xml_storage WHERE xml_type = ?';
+            my $SQL = 'SELECT DISTINCT(xml_key) FROM xml_storage WHERE xml_type = ? ';
             if (@OrConditions) {
-                $SQL .= 'AND ( ' . join( ' OR ', @OrConditions ) . ' )';
+                $SQL .= 'AND ( ' . join( ' OR ', @OrConditions ) . ' ) ';
             }
 
             # execute
@@ -487,7 +487,7 @@ sub XMLHashList {
     }
 
     return if !$Self->{DBObject}->Prepare(
-        SQL  => 'SELECT distinct(xml_key) FROM xml_storage WHERE xml_type = ? GROUP BY xml_key',
+        SQL  => 'SELECT distinct(xml_key) FROM xml_storage WHERE xml_type = ?',
         Bind => [ \$Param{Type} ],
     );
     my @Keys;
@@ -611,7 +611,7 @@ sub XMLParse2XMLHash {
 returns a simple hash with tag keys as keys and the values of C<XMLHash> as values.
 As a sideeffect the data structure C<XMLHash> is enriched with tag keys.
 
-    my %Hash = $XMLObject->XMLHash2D(XMLHash => \@XMLHash);
+    my %Hash = $XMLObject->XMLHash2D( XMLHash => \@XMLHash );
 
 For example:
 
@@ -655,7 +655,7 @@ sub XMLHash2D {
 
 get a @XMLHash from a @XMLStructure with current TagKey param
 
-    my @XMLHash = $XMLObject->XMLStructure2XMLHash(XMLStructure => \@XMLStructure);
+    my @XMLHash = $XMLObject->XMLStructure2XMLHash( XMLStructure => \@XMLStructure );
 
 =cut
 
@@ -1482,16 +1482,16 @@ sub _ES {
 
 =head1 TERMS AND CONDITIONS
 
-This software is part of the OTRS project (http://otrs.org/).
+This software is part of the OTRS project (L<http://otrs.org/>).
 
 This software comes with ABSOLUTELY NO WARRANTY. For details, see
 the enclosed file COPYING for license information (AGPL). If you
-did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
+did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
 
 =cut
 
 =head1 VERSION
 
-$Revision: 1.98 $ $Date: 2010-03-02 12:04:01 $
+$Revision: 1.98.2.1 $ $Date: 2010-07-09 09:29:58 $
 
 =cut
