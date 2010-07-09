@@ -2,7 +2,7 @@
 # DB.t - database tests
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: DB.t,v 1.58.2.2 2010-05-18 08:45:23 bes Exp $
+# $Id: DB.t,v 1.58.2.3 2010-07-09 17:39:09 ub Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -13,6 +13,8 @@ use strict;
 use warnings;
 
 use vars qw($Self);
+
+use Encode;
 
 use Kernel::System::XML;
 
@@ -1003,7 +1005,7 @@ for my $SQL (@SQL) {
 }
 
 my @SpecialCharacters = qw( - _ . : ; ' " \ [ ] { } ( ) < > ? ! $ % & / + * = ' ^ | ö ス);
-push @SpecialCharacters, ( ',', '#' );
+push @SpecialCharacters, ( ',', '#', 'otrs test', 'otrs_test' );
 my $Counter = 0;
 
 for my $Character (@SpecialCharacters) {
@@ -1093,6 +1095,170 @@ for my $Character (@SpecialCharacters) {
         );
     }
 
+    $Counter++;
+}
+
+# special test for like with _ (underscore)
+{
+
+    # select like value (with space)
+    my $name_b = $Self->{DBObject}->Quote( 'otrs test', 'Like' );
+    my $SQL = "SELECT COUNT(name_b) FROM test_d WHERE name_b LIKE '$name_b'";
+
+    my $Result = $Self->{DBObject}->Prepare(
+        SQL   => $SQL,
+        Limit => 1,
+    );
+    $Self->True(
+        $Result,
+        "#5.$Counter Prepare() SELECT COUNT LIKE $name_b (space)",
+    );
+    my $Count;
+    while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+        $Count = $Row[0];
+    }
+    $Self->Is(
+        $Count,
+        1,
+        "#5.$Counter $SQL (space)",
+    );
+
+    # select like value (with underscore)
+    $name_b = $Self->{DBObject}->Quote( 'otrs_test', 'Like' );
+    $SQL = "SELECT COUNT(name_b) FROM test_d WHERE name_b LIKE '$name_b'";
+
+    # proof of concept that oracle needs special treatment
+    # with undescores in LIKE argument, it always needs the ESCAPE parameter!
+    if ( $Self->{DBObject}->GetDatabaseFunction('Type') eq 'oracle' ) {
+        $SQL .= q{ ESCAPE '\'};
+    }
+    $Result = $Self->{DBObject}->Prepare(
+        SQL   => $SQL,
+        Limit => 1,
+    );
+    $Self->True(
+        $Result,
+        "#5.$Counter Prepare() SELECT COUNT LIKE $name_b (underscore)",
+    );
+    while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+        $Count = $Row[0];
+    }
+    $Self->Is(
+        $Count,
+        1,
+        "#5.$Counter $SQL (underscore)",
+    );
+
+    # do the same again for oracle but without the ESCAPE and expect this to fail
+    if ( $Self->{DBObject}->GetDatabaseFunction('Type') eq 'oracle' ) {
+        $SQL    = "SELECT COUNT(name_b) FROM test_d WHERE name_b LIKE '$name_b'";
+        $Result = $Self->{DBObject}->Prepare(
+            SQL   => $SQL,
+            Limit => 1,
+        );
+        $Self->True(
+            $Result,
+            "#5.$Counter Prepare() SELECT COUNT LIKE $name_b (underscore)",
+        );
+        while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+            $Count = $Row[0];
+        }
+        $Self->IsNot(
+            $Count,
+            1,
+            "#5.$Counter $SQL (underscore)",
+        );
+    }
+}
+
+my @UTF8Tests = (
+    {
+
+        # composed UTF8 char (german umlaut a)
+        InsertData => Encode::encode( 'UTF8', "\x{E4}" ),
+        SelectData => Encode::encode( 'UTF8', "\x{E4}" ),
+        ResultData => "\x{E4}",
+    },
+    {
+
+        # decomposed UTF8 char (german umlaut a)
+        InsertData => Encode::encode( 'UTF8', "\x{61}\x{308}" ),
+        SelectData => Encode::encode( 'UTF8', "\x{61}\x{308}" ),
+        ResultData => "\x{61}\x{308}",
+    },
+    {
+
+        # decomposed UTF8 char (german umlaut a)
+        InsertData => Encode::encode( 'UTF8', "\x{61}\x{308}" ),
+        SelectData => Encode::encode( 'UTF8', "\x{E4}" ),
+        ResultData => undef,
+    },
+    {
+
+        # composed UTF8 char (smal a with grave)
+        InsertData => Encode::encode( 'UTF8', "\x{E0}" ),
+        SelectData => Encode::encode( 'UTF8', "\x{E0}" ),
+        ResultData => "\x{E0}",
+    },
+    {
+
+        # decomposed UTF8 char (smal a with grave)
+        InsertData => Encode::encode( 'UTF8', "\x{61}\x{300}" ),
+        SelectData => Encode::encode( 'UTF8', "\x{61}\x{300}" ),
+        ResultData => "\x{61}\x{300}",
+    },
+    {
+
+        # decomposed UTF8 char (smal a with grave)
+        InsertData => Encode::encode( 'UTF8', "\x{61}\x{300}" ),
+        SelectData => Encode::encode( 'UTF8', "\x{E0}" ),
+        ResultData => undef,
+    },
+);
+
+UTF8TEST:
+for my $UTF8Test (@UTF8Tests) {
+
+    # extract needed test data
+    my %TestData = %{$UTF8Test};
+
+    my $Result = $Self->{DBObject}->Do(
+        SQL => 'INSERT INTO test_d (name_a, name_b) VALUES (?, ?)',
+        Bind => [ \$Counter, \$TestData{InsertData} ],
+    );
+    $Self->True(
+        $Result,
+        "#5.$Counter UTF8: insert test",
+    );
+
+    # check insert result
+    next UTF8Test if !$Result;
+
+    $Result = $Self->{DBObject}->Prepare(
+        SQL   => 'SELECT name_b FROM test_d WHERE name_a = ? AND name_b = ?',
+        Bind  => [ \$Counter, \$TestData{SelectData}, ],
+        Limit => 1,
+    );
+    $Self->True(
+        $Result,
+        "#5.$Counter UTF8: prepare SELECT stmt",
+    );
+
+    # check prepare result
+    next UTF8Test if !$Result;
+
+    my @UTF8ResultSet;
+    while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+        push @UTF8ResultSet, $Row[0];
+    }
+
+    $Self->Is(
+        $UTF8ResultSet[0],
+        $TestData{ResultData},
+        "#5.$Counter UTF8: check result data",
+    );
+}
+continue {
     $Counter++;
 }
 

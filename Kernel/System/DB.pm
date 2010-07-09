@@ -2,7 +2,7 @@
 # Kernel/System/DB.pm - the global database wrapper to support different databases
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: DB.pm,v 1.119.2.2 2010-05-11 15:29:49 ub Exp $
+# $Id: DB.pm,v 1.119.2.3 2010-07-09 17:39:09 ub Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -19,7 +19,7 @@ use DBI;
 use Kernel::System::Time;
 
 use vars qw(@ISA $VERSION);
-$VERSION = qw($Revision: 1.119.2.2 $) [1];
+$VERSION = qw($Revision: 1.119.2.3 $) [1];
 
 =head1 NAME
 
@@ -653,6 +653,7 @@ to get database functions like
     o ShellCommit
     o ShellConnect
     o Connect
+    o LikeEscapeString
 
     my $What = $DBObject->GetDatabaseFunction('DirectBlob');
 
@@ -1241,16 +1242,16 @@ sub DESTROY {
 
 =head1 TERMS AND CONDITIONS
 
-This software is part of the OTRS project (http://otrs.org/).
+This software is part of the OTRS project (L<http://otrs.org/>).
 
 This software comes with ABSOLUTELY NO WARRANTY. For details, see
 the enclosed file COPYING for license information (AGPL). If you
-did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
+did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
 
 =cut
 
 =head1 VERSION
 
-$Revision: 1.119.2.2 $ $Date: 2010-05-11 15:29:49 $
+$Revision: 1.119.2.3 $ $Date: 2010-07-09 17:39:09 $
 
 =cut
