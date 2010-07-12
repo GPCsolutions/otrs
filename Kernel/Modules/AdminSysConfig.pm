@@ -1,8 +1,8 @@
 # --
-# Kernel/Modules/AdminSysConfig.pm - to change ConfigParameter
-# Copyright (C) 2001-2009 OTRS AG, http://otrs.org/
+# Kernel/Modules/AdminSysConfig.pm - to change, import, export ConfigParameters
+# Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: AdminSysConfig.pm,v 1.85 2009-12-24 00:51:33 martin Exp $
+# $Id: AdminSysConfig.pm,v 1.85.2.1 2010-07-12 08:54:23 bes Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -17,7 +17,7 @@ use warnings;
 use Kernel::System::SysConfig;
 
 use vars qw($VERSION);
-$VERSION = qw($Revision: 1.85 $) [1];
+$VERSION = qw($Revision: 1.85.2.1 $) [1];
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -27,12 +27,13 @@ sub new {
     bless( $Self, $Type );
 
     # check all needed objects
-    for (qw(ParamObject DBObject LayoutObject ConfigObject LogObject)) {
-        if ( !$Self->{$_} ) {
-            $Self->{LayoutObject}->FatalError( Message => "Got no $_!" );
+    for my $Param (qw(ParamObject DBObject LayoutObject ConfigObject LogObject)) {
+        if ( !$Self->{$Param} ) {
+            $Self->{LayoutObject}->FatalError( Message => "Got no $Param!" );
         }
     }
 
+    # create additional objects
     $Self->{SysConfigObject} = Kernel::System::SysConfig->new(%Param);
 
     return $Self;
@@ -59,10 +60,10 @@ sub Run {
         my ( $s, $m, $h, $D, $M, $Y ) = $Self->{TimeObject}->SystemTime2Date(
             SystemTime => $Self->{TimeObject}->SystemTime(),
         );
-        $M = sprintf( "%02d", $M );
-        $D = sprintf( "%02d", $D );
-        $h = sprintf( "%02d", $h );
-        $m = sprintf( "%02d", $m );
+        $M = sprintf '%02d', $M;
+        $D = sprintf '%02d', $D;
+        $h = sprintf '%02d', $h;
+        $m = sprintf '%02d', $m;
 
         # return file
         return $Self->{LayoutObject}->Attachment(
@@ -171,7 +172,7 @@ sub Run {
                 }
             }
 
-            # ConfigElement PulldownMenue
+            # ConfigElement PulldownMenu
             elsif ( defined $ItemHash{Setting}->[1]->{Option} ) {
                 my $Content = $Self->{ParamObject}->GetParam( Param => $_ );
 
@@ -247,7 +248,7 @@ sub Run {
                             $Anker = $ItemHash{Name};
                         }
 
-                        #Delete SubArray Element?
+                        # Delete SubArray Element?
                         for my $Index2 ( 0 .. $#SubArray ) {
                             my $Delete = $Self->{ParamObject}->GetParam(
                                 Param => $ItemHash{Name}
@@ -634,7 +635,7 @@ sub Run {
             SubGroup => $SubGroup
         );
 
-        #Language
+        # Language
         my $UserLang = $Self->{UserLanguage} || $Self->{ConfigObject}->Get('DefaultLanguage');
 
         # list all Items
@@ -836,7 +837,7 @@ sub ListConfigItem {
         return 1;
     }
 
-    # ConfigElement PulldownMenue
+    # ConfigElement PulldownMenu
     if ( defined $Item->{Option} ) {
         my %Hash;
         my $Default = '';
@@ -849,7 +850,7 @@ sub ListConfigItem {
                 $Default = $Option->{Item}->[$Index]->{Content};
             }
         }
-        my $PulldownMenue = $Self->{LayoutObject}->BuildSelection(
+        my $PulldownMenu = $Self->{LayoutObject}->BuildSelection(
             Data       => \%Hash,
             SelectedID => $Option->{SelectedID},
             Name       => $ItemHash{Name},
@@ -858,7 +859,7 @@ sub ListConfigItem {
             Name => 'ConfigElementSelect',
             Data => {
                 Item    => $ItemHash{Name},
-                Liste   => $PulldownMenue,
+                List    => $PulldownMenu,
                 Default => $Default,
             },
         );
@@ -940,17 +941,17 @@ sub ListConfigItem {
                 }
             }
 
-            #SubOption
+            # SubOption
             # REMARK: The SubOptionHandling does not work any more
             elsif ( defined $Hash->{Item}->[$Index]->{Option} ) {
 
-                # Pulldownmenue
+                # PulldownMenu
                 my %Hash;
                 for my $Index2 ( 1 .. $#{ $Hash->{Item}->[$Index]->{Option}->[1]->{Item} } ) {
                     $Hash{ $Hash->{Item}->[$Index]->{Option}->[1]->{Item}->[$Index2]->{Key} }
                         = $Hash->{Item}->[$Index]->{Option}->[1]->{Item}->[$Index2]->{Content};
                 }
-                my $PulldownMenue = $Self->{LayoutObject}->BuildSelection(
+                my $PulldownMenu = $Self->{LayoutObject}->BuildSelection(
                     Data       => \%Hash,
                     SelectedID => $Hash->{Item}->[$Index]->{Option}->[1]->{SelectedID},
                     Name       => $ItemHash{Name} . 'Content[]',
@@ -960,7 +961,7 @@ sub ListConfigItem {
                     Data => {
                         ElementKey => $ItemHash{Name},
                         Key        => $Hash->{Item}->[$Index]->{Key},
-                        Liste      => $PulldownMenue,
+                        List       => $PulldownMenu,
                         Index      => $Index,
                     },
                 );
@@ -1091,7 +1092,7 @@ sub ListConfigItem {
             }
         }
         elsif ( defined $FrontendModuleReg->{NavBarModule} ) {
-            my %Data = ();
+            my %Data;
             for my $Key qw (Module Name Block Prio) {
                 $Data{ 'Key' . $Key }     = $Key;
                 $Data{ 'Content' . $Key } = '';
@@ -1257,10 +1258,7 @@ sub ListConfigItem {
             );
 
             # Hours
-            my @ArrayHours = (
-                '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-                '', '', '', '', '', '', '', '', '', '', ''
-            );
+            my @ArrayHours = ('') x 25;
 
             # Aktiv Hours
             if ( defined $Item->{TimeWorkingHours}[1]{Day}[$Index]{Hour} ) {

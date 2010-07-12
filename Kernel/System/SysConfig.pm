@@ -2,7 +2,7 @@
 # Kernel/System/SysConfig.pm - all system config tool functions
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: SysConfig.pm,v 1.3 2010-03-19 15:57:23 bes Exp $
+# $Id: SysConfig.pm,v 1.3.2.1 2010-07-12 08:54:23 bes Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -18,7 +18,7 @@ use Kernel::System::XML;
 use Kernel::Config;
 
 use vars qw(@ISA $VERSION);
-$VERSION = qw($Revision: 1.3 $) [1];
+$VERSION = qw($Revision: 1.3.2.1 $) [1];
 
 =head1 NAME
 
@@ -108,13 +108,13 @@ sub new {
     # create xml object
     $Self->{XMLObject} = Kernel::System::XML->new(%Param);
 
-    # create config object
+    # create config default object
     $Self->{ConfigDefaultObject} = Kernel::Config->new( %Param, Level => 'Default' );
 
     # create config object
     $Self->{ConfigObject} = Kernel::Config->new( %Param, Level => 'First' );
 
-    # create config object
+    # create config clear object
     $Self->{ConfigClearObject} = Kernel::Config->new( %Param, Level => 'Clear' );
 
     # read all config files
@@ -122,6 +122,14 @@ sub new {
 
     return $Self;
 }
+
+=item WriteDefault()
+
+writes the default configuration file perl cache
+(Kernel/Config/Files/ZZZAAuto.pm). It is the Perl representation
+of the default XML configuration data (Kernel/Config/Files/*.xml).
+
+=cut
 
 sub WriteDefault {
     my ( $Self, %Param ) = @_;
@@ -188,13 +196,18 @@ sub WriteDefault {
 
 =item Download()
 
-download config changes
+download config changes. This will return the content of
+Kernel/Config/Files/ZZZAuto.pm, the file which contains all
+configuration changes that the users made via AdminSysConfig.
 
-    $SysConfigObject->Download();
+    my $ConfigurationData = $SysConfigObject->Download();
 
-or if you want to check if it exists (returns true or false)
+If you want to check if it exists (returns true or false),
+call it like this:
 
-    $SysConfigObject->Download( Type => 'Check' );
+    my $ConfigurationExists = $SysConfigObject->Download(
+        Type => 'Check'
+    );
 
 =cut
 
@@ -246,7 +259,12 @@ sub Download {
 
 =item Upload()
 
-upload of config changes
+upload of config changes. Pass the contents of
+the file Kernel/Config/Files/ZZZAuto.pm here, as
+read by L<Download()>.
+
+Warning: this will replace the existing user
+configuration changes.
 
     $SysConfigObject->Upload(
         Content => $Content,
@@ -282,7 +300,10 @@ sub Upload {
 
 =item CreateConfig()
 
-submit config settings to application
+submit config settings to application. This function will write
+the internal state of the current SysConfig object to disk, saving
+all changes that were made by the users to Kernel/Config/Files/ZZZAuto.pm.
+Only values which differ from the default configuration are stored in this file.
 
     $SysConfigObject->CreateConfig();
 
@@ -306,7 +327,7 @@ sub CreateConfig {
         }
     }
 
-    # read all config files and only save the change config options
+    # read all config files and only save the changed config options
     for my $ConfigItem ( @{ $Self->{XMLConfig} } ) {
         if ( $ConfigItem->{Name} && !$UsedKeys{ $ConfigItem->{Name} } ) {
             my %Config = $Self->ConfigItemGet( Name => $ConfigItem->{Name} );
@@ -315,16 +336,19 @@ sub CreateConfig {
                 Default => 1,
             );
             $UsedKeys{ $ConfigItem->{Name} } = 1;
+
             my $Name = $Config{Name};
             $Name =~ s/\\/\\\\/g;
             $Name =~ s/'/\'/g;
             $Name =~ s/###/'}->{'/g;
+
             if ( $Config{Valid} ) {
                 my $C = $Self->_XML2Perl( Data => \%Config );
                 my $D = $Self->_XML2Perl( Data => \%ConfigDefault );
                 my ( $A1, $A2 );
                 eval "\$A1 = $C";
                 eval "\$A2 = $D";
+
                 if ( !defined $A1 && !defined $A2 ) {
 
                     # do nothing
@@ -378,12 +402,13 @@ sub CreateConfig {
     print $Out "}\n";
     print $Out "1;\n";
     close($Out);
+
     return 1;
 }
 
 =item ConfigItemUpdate()
 
-submit config settings and save it
+submit config settings and save it.
 
     $SysConfigObject->ConfigItemUpdate(
         Valid => 1,
@@ -495,13 +520,15 @@ sub ConfigItemUpdate {
 
 =item ConfigItemGet()
 
-get the current config setting
+get a current configuration setting, including changes
+that the users made:
 
     my %Config = $SysConfigObject->ConfigItemGet(
         Name => 'Ticket::NumberGenerator',
     );
 
-get the default config setting
+To get the default value of a configuration setting, pass
+the Default flag:
 
     my %Config = $SysConfigObject->ConfigItemGet(
         Name    => 'Ticket::NumberGenerator',
@@ -888,6 +915,16 @@ sub ConfigItemGet {
     return %{$ConfigItem};
 }
 
+=item ConfigItemReset()
+
+reset a configuration setting to its default value.
+
+    $SysConfigObject->ConfigItemReset(
+        Name => 'Ticket::NumberGenerator',
+    );
+
+=cut
+
 sub ConfigItemReset {
     my ( $Self, %Param ) = @_;
 
@@ -905,13 +942,14 @@ sub ConfigItemReset {
     my $A = $Self->_XML2Perl( Data => \%ConfigItemDefault );
     my ($B);
     eval "\$B = $A";
+
     $Self->ConfigItemUpdate( Key => $Param{Name}, Value => $B, Valid => $ConfigItemDefault{Valid} );
     return 1;
 }
 
 =item ConfigGroupList()
 
-get a list of config groups
+get the list of all available config groups.
 
     my %ConfigGroupList = $SysConfigObject->ConfigGroupList();
 
@@ -920,13 +958,6 @@ get a list of config groups
 sub ConfigGroupList {
     my ( $Self, %Param ) = @_;
 
-    # check needed stuff
-    for (qw()) {
-        if ( !$Param{$_} ) {
-            $Self->{LogObject}->Log( Priority => 'error', Message => "Need $_!" );
-            return;
-        }
-    }
     my %List;
     my %Count;
     for my $ConfigItem ( @{ $Self->{XMLConfig} } ) {
@@ -944,7 +975,7 @@ sub ConfigGroupList {
 
 =item ConfigSubGroupList()
 
-get a list of config sub groups
+get the list of all config sub groups of a given group.
 
     my %ConfigGroupList = $SysConfigObject->ConfigSubGroupList(
         Name => 'Framework'
@@ -991,7 +1022,7 @@ sub ConfigSubGroupList {
 
 =item ConfigSubGroupConfigItemList()
 
-get a list of config items of a sub group
+get the list of config items of a config sub group
 
     my @ConfigItemList = $SysConfigObject->ConfigSubGroupConfigItemList(
         Group    => 'Framework',
@@ -1056,7 +1087,8 @@ sub ConfigSubGroupConfigItemList {
 
 =item ConfigItemSearch()
 
-search sub groups of config items
+search for sub groups of config items. It will return all subgroups
+with settings which contain the search term.
 
     my @List = $SysConfigObject->ConfigItemSearch(
         Search => 'some topic'
@@ -1718,16 +1750,16 @@ sub _XML2Perl {
 
 =head1 TERMS AND CONDITIONS
 
-This software is part of the OTRS project (http://otrs.org/).
+This software is part of the OTRS project (L<http://otrs.org/>).
 
 This software comes with ABSOLUTELY NO WARRANTY. For details, see
 the enclosed file COPYING for license information (AGPL). If you
-did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
+did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
 
 =cut
 
 =head1 VERSION
 
-$Revision: 1.3 $ $Date: 2010-03-19 15:57:23 $
+$Revision: 1.3.2.1 $ $Date: 2010-07-12 08:54:23 $
 
 =cut
