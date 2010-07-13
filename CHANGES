@@ -2,7 +2,7 @@
 # CHANGES - change log of OTRS
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: CHANGES,v 1.1190.2.23 2010-07-13 18:26:36 ep Exp $
+# $Id: CHANGES,v 1.1190.2.24 2010-07-13 18:30:09 ep Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -12,6 +12,7 @@
 2.5.0 beta1 (????/??/??)
  - (2010/07/13) Fixed bug#5550 - Broken linebreaks in textareas of Google Chrome.
  - (2010/06/18) Updated CPAN module JSON::PP to version 2.21
+ - (2010/04/30) Make it possible to use a version argument with bin/opm.pl.
  - (2010/04/19) Fixed wrong tag "User:Role" to "Response:Attachment" in
     Responses <-> Attachments Management
  - (2010/04/12) Fixed Bug 5108 - The RSS date was not displayed correctly.
@@ -254,6 +255,7 @@
  - (2010/05/24) Fixed bug#5383 - Fckeditor localization not working for some
     languages such as Brazilian Portuguese.
  - (2010/05/07) Fixed bug#5336 - Also set execute bit on scripts/tools.
+ - (2010/04/30) Make it possible to use a version argument with bin/opm.pl.
  - (2010/04/21) Fixed bug#5266 - Ticket Zoom shows wrong html content if there
     is no text but two html attachments in there.
  - (2010/04/15) Fixed bug#5242 - Newlines are not displayed in html notification
