@@ -2,7 +2,7 @@
 # CHANGES - change log of OTRS
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: CHANGES,v 1.1190.2.22 2010-07-07 15:39:08 mb Exp $
+# $Id: CHANGES,v 1.1190.2.23 2010-07-13 18:26:36 ep Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -10,6 +10,7 @@
 # --
 
 2.5.0 beta1 (????/??/??)
+ - (2010/07/13) Fixed bug#5550 - Broken linebreaks in textareas of Google Chrome.
  - (2010/06/18) Updated CPAN module JSON::PP to version 2.21
  - (2010/04/19) Fixed wrong tag "User:Role" to "Response:Attachment" in
     Responses <-> Attachments Management
