@@ -2,12 +2,16 @@
 # CHANGES - change log of OTRS
 # Copyright (C) 2001-2010 OTRS AG, http://otrs.org/
 # --
-# $Id: CHANGES,v 1.762.2.69 2010-06-24 14:00:34 mh Exp $
+# $Id: CHANGES,v 1.762.2.70 2010-07-23 07:16:59 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
+
+2.3.6 (2010/??/??)
+ - (2010/07/23) Fixed bug# 3426 - Abort while processing mails with invalid
+    charset messes up POP3 mailbox handling.
 
 2.3.5 (2010/02/08)
  - (2010/02/04) Fixed SQL quoting issue (see also
@@ -636,7 +640,7 @@
     };
 
  - (2007/12/10) Updated MIME::Tools to current CPAN version 5.425.
- - (2007/12/06) Fixed bug# 2568 - Problems with attachement downloads if the
+ - (2007/12/06) Fixed bug# 2568 - Problems with attachment downloads if the
     active element filter is enabled.
  - (2007/12/05) Fixed bug# 1399 - Missing Translation. Added some translation to
     customer interface.
@@ -859,7 +863,7 @@
     like# 2612.
  - (2008/01/08) Fixed bug# 2609 - Temp files are not removed after process was
     finished under windows.
- - (2008/01/07) Fixed bug# 1893 - Attachement Storage fails with
+ - (2008/01/07) Fixed bug# 1893 - Attachment Storage fails with
     ArticleStorageFS in win32 with ? in filenames.
  - (2008/01/03) Fixed bug# 2491 - OTRS crash's after initial login on fresh
     installation on fedora 7, fedora 8, altlinux and ActiveState Perl on win32.
@@ -2210,7 +2214,7 @@
  - (2005/06/13) fixed bug 773 - NotificationAgentOnline needs TimeObject
  - (2005/06/12) fixed bug 776 - when adding a new user I got error message
  - (2005/06/11) added XML::Parser support for Kernel::System::XML
- - (2005/06/07) fixed bug 771 - Customer Web Interface - Attachement
+ - (2005/06/07) fixed bug 771 - Customer Web Interface - Attachment
     View Error' Kernel/Modules/CustomerTicketZoom.pm
  - (2005/06/06) added experimental db2 support - thanks to Friedmar Moch!
  - (2005/06/06) removed foreign key for queue_id in pop3_account, fixed
@@ -2750,7 +2754,7 @@
     Agent notification config options.
  - (2003/12/23) added lock/unlock option to phone view / create
     ticket.
- - (2003/12/15) changed recipents of customer notifications
+ - (2003/12/15) changed recipients of customer notifications
     (change queue, update owner, update state, ...) to current
     customer user, based on customer user source.
  - (2003/12/15) added customer user cc by creating a new ticket
