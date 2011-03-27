@@ -1,12 +1,12 @@
 # --
 # Kernel/System/PDF.pm - PDF lib
-# Copyright (C) 2001-2008 OTRS AG, http://otrs.org/
+# Copyright (C) 2001-2011 OTRS AG, http://otrs.org/
 # --
-# $Id: PDF.pm,v 1.32 2008-05-08 09:36:19 mh Exp $
+# $Id: PDF.pm,v 1.32.2.1 2011-03-27 10:29:13 mh Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
-# the enclosed file COPYING for license information (GPL). If you
-# did not receive this file, see http://www.gnu.org/licenses/gpl-2.0.txt.
+# the enclosed file COPYING for license information (AGPL). If you
+# did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
 # --
 
 package Kernel::System::PDF;
@@ -15,7 +15,7 @@ use strict;
 use warnings;
 
 use vars qw(@ISA $VERSION);
-$VERSION = qw($Revision: 1.32 $) [1];
+$VERSION = qw($Revision: 1.32.2.1 $) [1];
 
 =head1 NAME
 
@@ -56,6 +56,17 @@ sub new {
         return;
     }
     elsif (
+
+        # version 2.x or newer exports a proper version number
+        $PDF::API2::VERSION =~ m{^(\d)\..*}mx
+        && ( $1 > 1 )
+        )
+    {
+        return $Self;
+    }
+    elsif (
+
+        # versions 0.73 and lower have a special Version.pm
         $PDF::API2::Version::VERSION =~ m{^(\d)\.(\d\d).*}mx
         && ( $1 > 0 || ( $1 eq 0 && $2 >= 57 ) )
         )
@@ -3606,14 +3617,14 @@ sub _CurPositionGet {
 
 =head1 TERMS AND CONDITIONS
 
-This software is part of the OTRS project (http://otrs.org/).
+This software is part of the OTRS project (L<http://otrs.org/>).
 
 This software comes with ABSOLUTELY NO WARRANTY. For details, see
-the enclosed file COPYING for license information (GPL). If you
-did not receive this file, see http://www.gnu.org/licenses/gpl-2.0.txt.
+the enclosed file COPYING for license information (AGPL). If you
+did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
 
 =head1 VERSION
 
-$Revision: 1.32 $ $Date: 2008-05-08 09:36:19 $
+$Revision: 1.32.2.1 $ $Date: 2011-03-27 10:29:13 $
 
 =cut
