@@ -1,12 +1,12 @@
 # --
 # Kernel/Modules/AdminPackageManager.pm - manage software packages
-# Copyright (C) 2001-2006 OTRS GmbH, http://otrs.org/
+# Copyright (C) 2001-2011 OTRS AG, http://otrs.org/
 # --
-# $Id: AdminPackageManager.pm,v 1.39 2006-10-19 16:56:51 mh Exp $
+# $Id: AdminPackageManager.pm,v 1.39.2.1 2011-07-28 09:09:04 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
-# the enclosed file COPYING for license information (GPL). If you
-# did not receive this file, see http://www.gnu.org/licenses/gpl.txt.
+# the enclosed file COPYING for license information (AGPL). If you
+# did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
 # --
 
 package Kernel::Modules::AdminPackageManager;
@@ -15,24 +15,25 @@ use strict;
 use Kernel::System::Package;
 
 use vars qw($VERSION);
-$VERSION = '$Revision: 1.39 $';
+$VERSION = '$Revision: 1.39.2.1 $';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 sub new {
-    my $Type = shift;
+    my $Type  = shift;
     my %Param = @_;
 
     # allocate new hash for object
     my $Self = {};
-    bless ($Self, $Type);
+    bless( $Self, $Type );
 
-    foreach (keys %Param) {
+    foreach ( keys %Param ) {
         $Self->{$_} = $Param{$_};
     }
-    # check needed Opjects
+
+    # check needed Objects
     foreach (qw(ParamObject DBObject LayoutObject LogObject ConfigObject)) {
-        if (!$Self->{$_}) {
-            $Self->{LayoutObject}->FatalError(Message => "Got no $_!");
+        if ( !$Self->{$_} ) {
+            $Self->{LayoutObject}->FatalError( Message => "Got no $_!" );
         }
     }
 
@@ -42,91 +43,104 @@ sub new {
 }
 
 sub Run {
-    my $Self = shift;
-    my %Param = @_;
+    my $Self   = shift;
+    my %Param  = @_;
     my $Source = $Self->{UserRepository} || '';
+
     # ------------------------------------------------------------ #
     # check mod perl version and Apache::Reload
     # ------------------------------------------------------------ #
-    if (exists $ENV{MOD_PERL}) {
+    if ( exists $ENV{MOD_PERL} ) {
         eval "require mod_perl";
-        if (defined $mod_perl::VERSION) {
-            if ($mod_perl::VERSION >= 1.99) {
+        if ( defined $mod_perl::VERSION ) {
+            if ( $mod_perl::VERSION >= 1.99 ) {
+
                 # check if Apache::Reload is loaded
                 my $ApacheReload = 0;
-                foreach my $Module (keys %INC) {
+                foreach my $Module ( keys %INC ) {
                     $Module =~ s/\//::/g;
                     $Module =~ s/\.pm$//g;
-                    if ($Module eq 'Apache::Reload' || $Module eq 'Apache2::Reload') {
+                    if ( $Module eq 'Apache::Reload' || $Module eq 'Apache2::Reload' ) {
                         $ApacheReload = 1;
                     }
                 }
-                if (!$ApacheReload) {
-                    return $Self->{LayoutObject}->ErrorScreen(Message => 'Sorry, Apache::Reload or Apache2::Reload is needed as PerlModule and PerlInitHandler in Apache config file. See also scripts/apache2-httpd.include.conf!');
+                if ( !$ApacheReload ) {
+                    return $Self->{LayoutObject}->ErrorScreen(
+                        Message =>
+                            'Sorry, Apache::Reload or Apache2::Reload is needed as PerlModule and PerlInitHandler in Apache config file. See also scripts/apache2-httpd.include.conf!'
+                    );
                 }
             }
             else {
-                return $Self->{LayoutObject}->ErrorScreen(Message => 'Sorry, for this interface is mod_perl2 with Apache2::Reload required. Other way you need to use the cmd tool bin/opm.pl to install packages!');
+                return $Self->{LayoutObject}->ErrorScreen(
+                    Message =>
+                        'Sorry, for this interface is mod_perl2 with Apache2::Reload required. Other way you need to use the cmd tool bin/opm.pl to install packages!'
+                );
             }
         }
     }
+
     # ------------------------------------------------------------ #
     # view diff file
     # ------------------------------------------------------------ #
-    if ($Self->{Subaction} eq 'ViewDiff') {
-        my $Name = $Self->{ParamObject}->GetParam(Param => 'Name') || '';
-        my $Version = $Self->{ParamObject}->GetParam(Param => 'Version') || '';
-        my $Location = $Self->{ParamObject}->GetParam(Param => 'Location');
+    if ( $Self->{Subaction} eq 'ViewDiff' ) {
+        my $Name    = $Self->{ParamObject}->GetParam( Param => 'Name' )    || '';
+        my $Version = $Self->{ParamObject}->GetParam( Param => 'Version' ) || '';
+        my $Location = $Self->{ParamObject}->GetParam( Param => 'Location' );
         my %Frontend = ();
-        my $Package = $Self->{PackageObject}->RepositoryGet(
-            Name => $Name,
+        my $Package  = $Self->{PackageObject}->RepositoryGet(
+            Name    => $Name,
             Version => $Version,
         );
-        if (!$Package) {
-            return $Self->{LayoutObject}->ErrorScreen(Message => 'No such package!');
+        if ( !$Package ) {
+            return $Self->{LayoutObject}->ErrorScreen( Message => 'No such package!' );
         }
-        my %Structur = $Self->{PackageObject}->PackageParse(String => $Package);
+        my %Structur = $Self->{PackageObject}->PackageParse( String => $Package );
         my $File = '';
-        if (!$Location) {
+        if ( !$Location ) {
 
         }
-        if (ref($Structur{Filelist}) eq 'ARRAY') {
-            foreach my $Hash (@{$Structur{Filelist}}) {
-                if ($Hash->{Location} eq $Location) {
+        if ( ref( $Structur{Filelist} ) eq 'ARRAY' ) {
+            foreach my $Hash ( @{ $Structur{Filelist} } ) {
+                if ( $Hash->{Location} eq $Location ) {
                     $File = $Hash->{Content};
                 }
             }
         }
-        my $LocalFile = $Self->{ConfigObject}->Get('Home')."/$Location";
-        if (! -e $LocalFile) {
+        my $LocalFile = $Self->{ConfigObject}->Get('Home') . "/$Location";
+
+        # do not allow to read file with including .. path (security related)
+        $LocalFile =~ s/\.\.//g;
+        if ( !-e $LocalFile ) {
             $Self->{LayoutObject}->Block(
                 Name => "FileDiff",
                 Data => {
                     Location => $Location,
-                    Name => $Name,
-                    Version => $Version,
-                    Diff => "No such file $LocalFile!",
+                    Name     => $Name,
+                    Version  => $Version,
+                    Diff     => "No such file $LocalFile!",
                 },
             );
         }
-        elsif (-e $LocalFile) {
+        elsif ( -e $LocalFile ) {
             my $Content = '';
-            if (open(IN, "< $LocalFile")) {
+            if ( open( IN, "< $LocalFile" ) ) {
+
                 # set bin mode
                 binmode IN;
                 while (<IN>) {
                     $Content .= $_;
                 }
-                close (IN);
+                close(IN);
                 use Text::Diff;
-                my $Diff = diff(\$File, \$Content, { STYLE => 'OldStyle' });
+                my $Diff = diff( \$File, \$Content, { STYLE => 'OldStyle' } );
                 $Self->{LayoutObject}->Block(
                     Name => "FileDiff",
                     Data => {
                         Location => $Location,
-                        Name => $Name,
-                        Version => $Version,
-                        Diff => $Diff,
+                        Name     => $Name,
+                        Version  => $Version,
+                        Diff     => $Diff,
                     },
                 );
             }
@@ -135,9 +149,9 @@ sub Run {
                     Name => "FileDiff",
                     Data => {
                         Location => $Location,
-                        Name => $Name,
-                        Version => $Version,
-                        Diff => "Can't read $LocalFile!",
+                        Name     => $Name,
+                        Version  => $Version,
+                        Diff     => "Can't read $LocalFile!",
                     },
                 );
             }
@@ -146,29 +160,31 @@ sub Run {
         $Output .= $Self->{LayoutObject}->NavigationBar();
         $Output .= $Self->{LayoutObject}->Output(
             TemplateFile => 'AdminPackageManager',
-            Data => \%Param,
+            Data         => \%Param,
         );
         $Output .= $Self->{LayoutObject}->Footer();
         return $Output;
     }
+
     # ------------------------------------------------------------ #
     # view package
     # ------------------------------------------------------------ #
-    if ($Self->{Subaction} eq 'View') {
-        my $Name = $Self->{ParamObject}->GetParam(Param => 'Name') || '';
-        my $Version = $Self->{ParamObject}->GetParam(Param => 'Version') || '';
-        my $Loaction = $Self->{ParamObject}->GetParam(Param => 'Location');
+    if ( $Self->{Subaction} eq 'View' ) {
+        my $Name    = $Self->{ParamObject}->GetParam( Param => 'Name' )    || '';
+        my $Version = $Self->{ParamObject}->GetParam( Param => 'Version' ) || '';
+        my $Loaction = $Self->{ParamObject}->GetParam( Param => 'Location' );
         my %Frontend = ();
-        my $Package = $Self->{PackageObject}->RepositoryGet(
-            Name => $Name,
+        my $Package  = $Self->{PackageObject}->RepositoryGet(
+            Name    => $Name,
             Version => $Version,
         );
-        if (!$Package) {
-            return $Self->{LayoutObject}->ErrorScreen(Message => 'No such package!');
+        if ( !$Package ) {
+            return $Self->{LayoutObject}->ErrorScreen( Message => 'No such package!' );
         }
+
         # deploy check
         my $Deployed = $Self->{PackageObject}->DeployCheck(
-            Name => $Name,
+            Name    => $Name,
             Version => $Version,
         );
         my %DeployInfo = $Self->{PackageObject}->DeployCheckInfo();
@@ -178,88 +194,92 @@ sub Run {
         );
         foreach (qw(DownloadLocal Rebuild Reinstall)) {
             $Self->{LayoutObject}->Block(
-                Name => 'Package'.$_,
+                Name => 'Package' . $_,
                 Data => { %Param, %Frontend, Name => $Name, Version => $Version, },
             );
         }
-        my %Structur = $Self->{PackageObject}->PackageParse(String => $Package);
+        my %Structur = $Self->{PackageObject}->PackageParse( String => $Package );
+
         # check if file is requested
         if ($Loaction) {
-            if (ref($Structur{Filelist}) eq 'ARRAY') {
-                foreach my $Hash (@{$Structur{Filelist}}) {
-                    if ($Hash->{Location} eq $Loaction) {
+            if ( ref( $Structur{Filelist} ) eq 'ARRAY' ) {
+                foreach my $Hash ( @{ $Structur{Filelist} } ) {
+                    if ( $Hash->{Location} eq $Loaction ) {
                         return $Self->{LayoutObject}->Attachment(
-                            Filename => $Loaction,
+                            Filename    => $Loaction,
                             ContentType => 'application/octet-stream',
-                            Content => $Hash->{Content},
+                            Content     => $Hash->{Content},
                         );
                     }
                 }
             }
         }
         my @DatabaseBuffer = ();
-        foreach my $Key (sort keys %Structur) {
-            if (ref($Structur{$Key}) eq 'HASH') {
-                if ($Key =~ /^(Description|Filelist)$/) {
+        foreach my $Key ( sort keys %Structur ) {
+            if ( ref( $Structur{$Key} ) eq 'HASH' ) {
+                if ( $Key =~ /^(Description|Filelist)$/ ) {
                     $Self->{LayoutObject}->Block(
                         Name => "PackageItem$Key",
-                        Data => {Tag => $Key, %{$Structur{$Key}}},
+                        Data => { Tag => $Key, %{ $Structur{$Key} } },
                     );
                 }
                 else {
-                    if ($Key eq 'CodeInstall') {
+                    if ( $Key eq 'CodeInstall' ) {
                         $Structur{$Key}{Content} = $Self->{LayoutObject}->Ascii2Html(
-                            Text => $Structur{$Key}{Content},
+                            Text           => $Structur{$Key}{Content},
                             HTMLResultMode => 1,
-                            NewLine => 72,
+                            NewLine        => 72,
                         );
                     }
                     $Self->{LayoutObject}->Block(
                         Name => "PackageItemGeneric",
-                        Data => {Tag => $Key, %{$Structur{$Key}}},
+                        Data => { Tag => $Key, %{ $Structur{$Key} } },
                     );
                 }
             }
-            elsif (ref($Structur{$Key}) eq 'ARRAY') {
-                foreach my $Hash (@{$Structur{$Key}}) {
-                    if ($Key =~ /^(Description|ChangeLog)$/) {
+            elsif ( ref( $Structur{$Key} ) eq 'ARRAY' ) {
+                foreach my $Hash ( @{ $Structur{$Key} } ) {
+                    if ( $Key =~ /^(Description|ChangeLog)$/ ) {
                         $Self->{LayoutObject}->Block(
                             Name => "PackageItem$Key",
                             Data => { %{$Hash}, Tag => $Key, },
                         );
                     }
-                    elsif ($Hash->{Tag} =~ /^(File)$/) {
+                    elsif ( $Hash->{Tag} =~ /^(File)$/ ) {
+
                         # add human readable file size
-                        if ($Hash->{Size}) {
+                        if ( $Hash->{Size} ) {
+
                             # remove meta data in files
-                            if ($Hash->{Size} > (1024*1024)) {
-                                $Hash->{Size} = sprintf "%.1f MBytes", ($Hash->{Size}/(1024*1024));
+                            if ( $Hash->{Size} > ( 1024 * 1024 ) ) {
+                                $Hash->{Size} = sprintf "%.1f MBytes",
+                                    ( $Hash->{Size} / ( 1024 * 1024 ) );
                             }
-                            elsif ($Hash->{Size} > 1024) {
-                                $Hash->{Size} = sprintf "%.1f KBytes", (($Hash->{Size} /1024));
+                            elsif ( $Hash->{Size} > 1024 ) {
+                                $Hash->{Size} = sprintf "%.1f KBytes", ( ( $Hash->{Size} / 1024 ) );
                             }
                             else {
-                                $Hash->{Size} = $Hash->{Size}.' Bytes';
+                                $Hash->{Size} = $Hash->{Size} . ' Bytes';
                             }
                         }
                         $Self->{LayoutObject}->Block(
                             Name => "PackageItemFilelistFile",
                             Data => {
-                                Name => $Name,
+                                Name    => $Name,
                                 Version => $Version,
                                 %{$Hash},
                             },
                         );
-                        if ($DeployInfo{File}->{$Hash->{Location}}) {
-                            if ($DeployInfo{File}->{$Hash->{Location}} =~ /different/) {
+                        if ( $DeployInfo{File}->{ $Hash->{Location} } ) {
+                            if ( $DeployInfo{File}->{ $Hash->{Location} } =~ /different/ ) {
                                 $Self->{LayoutObject}->Block(
                                     Name => "PackageItemFilelistFileNoteDiff",
                                     Data => {
-                                        Name => $Name,
+                                        Name    => $Name,
                                         Version => $Version,
                                         %{$Hash},
-                                        Message => $DeployInfo{File}->{$Hash->{Location}},
-                                        Image => 'notready.png',
+                                        Message => $DeployInfo{File}->{ $Hash->{Location} },
+                                        Image   => 'notready.png',
                                     },
                                 );
                             }
@@ -267,11 +287,11 @@ sub Run {
                                 $Self->{LayoutObject}->Block(
                                     Name => "PackageItemFilelistFileNote",
                                     Data => {
-                                        Name => $Name,
+                                        Name    => $Name,
                                         Version => $Version,
                                         %{$Hash},
-                                        Message => $DeployInfo{File}->{$Hash->{Location}},
-                                        Image => 'notready-sw.png',
+                                        Message => $DeployInfo{File}->{ $Hash->{Location} },
+                                        Image   => 'notready-sw.png',
                                     },
                                 );
                             }
@@ -280,37 +300,38 @@ sub Run {
                             $Self->{LayoutObject}->Block(
                                 Name => "PackageItemFilelistFileNote",
                                 Data => {
-                                    Name => $Name,
+                                    Name    => $Name,
                                     Version => $Version,
                                     %{$Hash},
                                     Message => 'ok',
-                                    Image => 'ready.png',
+                                    Image   => 'ready.png',
                                 },
                             );
                         }
                     }
-                    elsif ($Key =~ /^Database(Install|Reinstall|Upgrade|Uninstall)$/) {
-                        if ($Hash->{TagType} eq 'Start') {
-                            if ($Hash->{Tag} =~ /^Table/) {
-                                push (@DatabaseBuffer, $Hash);
+                    elsif ( $Key =~ /^Database(Install|Reinstall|Upgrade|Uninstall)$/ ) {
+                        if ( $Hash->{TagType} eq 'Start' ) {
+                            if ( $Hash->{Tag} =~ /^Table/ ) {
+                                push( @DatabaseBuffer, $Hash );
                                 $Self->{LayoutObject}->Block(
                                     Name => "PackageItemDatabase",
                                     Data => { %{$Hash}, TagName => $Key, },
                                 );
                             }
                             else {
-                                push (@DatabaseBuffer, $Hash);
+                                push( @DatabaseBuffer, $Hash );
                                 $Self->{LayoutObject}->Block(
                                     Name => "PackageItemDatabaseSub",
                                     Data => { %{$Hash}, TagName => $Key, },
                                 );
                             }
                         }
-                        if ($Hash->{Tag} =~ /^Table/ && $Hash->{TagType} eq 'End') {
-                            push (@DatabaseBuffer, $Hash);
-                            my @SQL = $Self->{DBObject}->SQLProcessor(Database => \@DatabaseBuffer);
+                        if ( $Hash->{Tag} =~ /^Table/ && $Hash->{TagType} eq 'End' ) {
+                            push( @DatabaseBuffer, $Hash );
+                            my @SQL
+                                = $Self->{DBObject}->SQLProcessor( Database => \@DatabaseBuffer );
                             my @SQLPost = $Self->{DBObject}->SQLProcessorPost();
-                            push (@SQL, @SQLPost);
+                            push( @SQL, @SQLPost );
                             foreach my $SQL (@SQL) {
                                 $Self->{LayoutObject}->Block(
                                     Name => "PackageItemDatabaseSQL",
@@ -331,36 +352,42 @@ sub Run {
         }
         my $Output = $Self->{LayoutObject}->Header();
         $Output .= $Self->{LayoutObject}->NavigationBar();
-        if (!$Deployed) {
+        if ( !$Deployed ) {
             $Output .= $Self->{LayoutObject}->Notify(
                 Priority => 'Error',
-                Data => "$Name $Version".' - $Text{"Package not correctly deployed! You should reinstall the Package again!"}',
-                Link => '$Env{"Baselink"}Action=$Env{"Action"}&Subaction=View&Name='.$Name.'&Version='.$Version,
+                Data     => "$Name $Version"
+                    . ' - $Text{"Package not correctly deployed! You should reinstall the Package again!"}',
+                Link => '$Env{"Baselink"}Action=$Env{"Action"}&Subaction=View&Name='
+                    . $Name
+                    . '&Version='
+                    . $Version,
             );
         }
         $Output .= $Self->{LayoutObject}->Output(
             TemplateFile => 'AdminPackageManager',
-            Data => \%Param,
+            Data         => \%Param,
         );
         $Output .= $Self->{LayoutObject}->Footer();
         return $Output;
     }
+
     # ------------------------------------------------------------ #
     # view remote package
     # ------------------------------------------------------------ #
-    if ($Self->{Subaction} eq 'ViewRemote') {
-        my $File = $Self->{ParamObject}->GetParam(Param => 'File') || '';
-        my $Loaction = $Self->{ParamObject}->GetParam(Param => 'Location');
+    if ( $Self->{Subaction} eq 'ViewRemote' ) {
+        my $File     = $Self->{ParamObject}->GetParam( Param => 'File' ) || '';
+        my $Loaction = $Self->{ParamObject}->GetParam( Param => 'Location' );
         my %Frontend = ();
+
         # download package
         my $Package = $Self->{PackageObject}->PackageOnlineGet(
             Source => $Source,
-            File => $File,
+            File   => $File,
         );
-        if (!$Package) {
-            return $Self->{LayoutObject}->ErrorScreen(Message => 'No such package!');
+        if ( !$Package ) {
+            return $Self->{LayoutObject}->ErrorScreen( Message => 'No such package!' );
         }
-        my %Structur = $Self->{PackageObject}->PackageParse(String => $Package);
+        my %Structur = $Self->{PackageObject}->PackageParse( String => $Package );
         $Self->{LayoutObject}->Block(
             Name => 'Package',
             Data => { %Param, %Frontend, },
@@ -369,90 +396,95 @@ sub Run {
             Name => 'PackageDownloadRemote',
             Data => { %Param, %Frontend, File => $File, },
         );
+
         # check if file is requested
         if ($Loaction) {
-            if (ref($Structur{Filelist}) eq 'ARRAY') {
-                foreach my $Hash (@{$Structur{Filelist}}) {
-                    if ($Hash->{Location} eq $Loaction) {
+            if ( ref( $Structur{Filelist} ) eq 'ARRAY' ) {
+                foreach my $Hash ( @{ $Structur{Filelist} } ) {
+                    if ( $Hash->{Location} eq $Loaction ) {
                         return $Self->{LayoutObject}->Attachment(
-                            Filename => $Loaction,
+                            Filename    => $Loaction,
                             ContentType => 'application/octet-stream',
-                            Content => $Hash->{Content},
+                            Content     => $Hash->{Content},
                         );
                     }
                 }
             }
         }
         my @DatabaseBuffer = ();
-        foreach my $Key (sort keys %Structur) {
-            if (ref($Structur{$Key}) eq 'HASH') {
-                if ($Key =~ /^(Description|Filelist)$/) {
+        foreach my $Key ( sort keys %Structur ) {
+            if ( ref( $Structur{$Key} ) eq 'HASH' ) {
+                if ( $Key =~ /^(Description|Filelist)$/ ) {
                     $Self->{LayoutObject}->Block(
                         Name => "PackageItem$Key",
-                        Data => {Tag => $Key, %{$Structur{$Key}}},
+                        Data => { Tag => $Key, %{ $Structur{$Key} } },
                     );
                 }
                 else {
                     $Self->{LayoutObject}->Block(
                         Name => "PackageItemGeneric",
-                        Data => {Tag => $Key, %{$Structur{$Key}}},
+                        Data => { Tag => $Key, %{ $Structur{$Key} } },
                     );
                 }
             }
-            elsif (ref($Structur{$Key}) eq 'ARRAY') {
-                foreach my $Hash (@{$Structur{$Key}}) {
-                    if ($Key =~ /^(Description|ChangeLog)$/) {
+            elsif ( ref( $Structur{$Key} ) eq 'ARRAY' ) {
+                foreach my $Hash ( @{ $Structur{$Key} } ) {
+                    if ( $Key =~ /^(Description|ChangeLog)$/ ) {
                         $Self->{LayoutObject}->Block(
                             Name => "PackageItem$Key",
                             Data => { %{$Hash}, Tag => $Key, },
                         );
                     }
-                    elsif ($Hash->{Tag} =~ /^(File)$/) {
+                    elsif ( $Hash->{Tag} =~ /^(File)$/ ) {
+
                         # add human readable file size
-                        if ($Hash->{Size}) {
+                        if ( $Hash->{Size} ) {
+
                             # remove meta data in files
-                            if ($Hash->{Size} > (1024*1024)) {
-                                $Hash->{Size} = sprintf "%.1f MBytes", ($Hash->{Size}/(1024*1024));
+                            if ( $Hash->{Size} > ( 1024 * 1024 ) ) {
+                                $Hash->{Size} = sprintf "%.1f MBytes",
+                                    ( $Hash->{Size} / ( 1024 * 1024 ) );
                             }
-                            elsif ($Hash->{Size} > 1024) {
-                                $Hash->{Size} = sprintf "%.1f KBytes", (($Hash->{Size} /1024));
+                            elsif ( $Hash->{Size} > 1024 ) {
+                                $Hash->{Size} = sprintf "%.1f KBytes", ( ( $Hash->{Size} / 1024 ) );
                             }
                             else {
-                                $Hash->{Size} = $Hash->{Size}.' Bytes';
+                                $Hash->{Size} = $Hash->{Size} . ' Bytes';
                             }
                         }
                         $Self->{LayoutObject}->Block(
                             Name => "PackageItemFilelistFile",
                             Data => {
-                                Name => $Structur{Name}->{Content},
+                                Name    => $Structur{Name}->{Content},
                                 Version => $Structur{Version}->{Content},
-                                File => $File,
+                                File    => $File,
                                 %{$Hash},
                             },
                         );
                     }
-                    elsif ($Key =~ /^Database(Install|Reinstall|Upgrade|Uninstall)$/) {
-                        if ($Hash->{TagType} eq 'Start') {
-                            if ($Hash->{Tag} =~ /^Table/) {
+                    elsif ( $Key =~ /^Database(Install|Reinstall|Upgrade|Uninstall)$/ ) {
+                        if ( $Hash->{TagType} eq 'Start' ) {
+                            if ( $Hash->{Tag} =~ /^Table/ ) {
                                 $Self->{LayoutObject}->Block(
                                     Name => "PackageItemDatabase",
                                     Data => { %{$Hash}, TagName => $Key, },
                                 );
-                                push (@DatabaseBuffer, $Hash);
+                                push( @DatabaseBuffer, $Hash );
                             }
                             else {
                                 $Self->{LayoutObject}->Block(
                                     Name => "PackageItemDatabaseSub",
                                     Data => { %{$Hash}, TagName => $Key, },
                                 );
-                                push (@DatabaseBuffer, $Hash);
+                                push( @DatabaseBuffer, $Hash );
                             }
                         }
-                        if ($Hash->{Tag} =~ /^Table/ && $Hash->{TagType} eq 'End') {
-                            push (@DatabaseBuffer, $Hash);
-                            my @SQL = $Self->{DBObject}->SQLProcessor(Database => \@DatabaseBuffer);
+                        if ( $Hash->{Tag} =~ /^Table/ && $Hash->{TagType} eq 'End' ) {
+                            push( @DatabaseBuffer, $Hash );
+                            my @SQL
+                                = $Self->{DBObject}->SQLProcessor( Database => \@DatabaseBuffer );
                             my @SQLPost = $Self->{DBObject}->SQLProcessorPost();
-                            push (@SQL, @SQLPost);
+                            push( @SQL, @SQLPost );
                             foreach my $SQL (@SQL) {
                                 $Self->{LayoutObject}->Block(
                                     Name => "PackageItemDatabaseSQL",
@@ -475,169 +507,183 @@ sub Run {
         $Output .= $Self->{LayoutObject}->NavigationBar();
         $Output .= $Self->{LayoutObject}->Output(
             TemplateFile => 'AdminPackageManager',
-            Data => \%Param,
+            Data         => \%Param,
         );
         $Output .= $Self->{LayoutObject}->Footer();
         return $Output;
     }
+
     # ------------------------------------------------------------ #
     # download package
     # ------------------------------------------------------------ #
-    elsif ($Self->{Subaction} eq 'Download') {
-        my $Name = $Self->{ParamObject}->GetParam(Param => 'Name') || '';
-        my $Version = $Self->{ParamObject}->GetParam(Param => 'Version') || '';
+    elsif ( $Self->{Subaction} eq 'Download' ) {
+        my $Name    = $Self->{ParamObject}->GetParam( Param => 'Name' )    || '';
+        my $Version = $Self->{ParamObject}->GetParam( Param => 'Version' ) || '';
         my %Frontend = ();
-        my $Package = $Self->{PackageObject}->RepositoryGet(
-            Name => $Name,
+        my $Package  = $Self->{PackageObject}->RepositoryGet(
+            Name    => $Name,
             Version => $Version,
         );
-        if (!$Package) {
-            return $Self->{LayoutObject}->ErrorScreen(Message => 'No such package!');
+        if ( !$Package ) {
+            return $Self->{LayoutObject}->ErrorScreen( Message => 'No such package!' );
         }
         else {
             return $Self->{LayoutObject}->Attachment(
-                Content => $Package,
+                Content     => $Package,
                 ContentType => 'plain/xml',
-                Filename => "$Name-$Version.opm",
-                Type => 'attachment',
+                Filename    => "$Name-$Version.opm",
+                Type        => 'attachment',
             );
         }
     }
+
     # ------------------------------------------------------------ #
     # download remote package
     # ------------------------------------------------------------ #
-    elsif ($Self->{Subaction} eq 'DownloadRemote') {
-        my $File = $Self->{ParamObject}->GetParam(Param => 'File') || '';
+    elsif ( $Self->{Subaction} eq 'DownloadRemote' ) {
+        my $File = $Self->{ParamObject}->GetParam( Param => 'File' ) || '';
         my %Frontend = ();
+
         # download package
         my $Package = $Self->{PackageObject}->PackageOnlineGet(
             Source => $Source,
-            File => $File,
+            File   => $File,
         );
+
         # check
-        if (!$Package) {
-            return $Self->{LayoutObject}->ErrorScreen(Message => 'No such package!');
+        if ( !$Package ) {
+            return $Self->{LayoutObject}->ErrorScreen( Message => 'No such package!' );
         }
         else {
             return $Self->{LayoutObject}->Attachment(
-                Content => $Package,
+                Content     => $Package,
                 ContentType => 'plain/xml',
-                Filename => $File,
-                Type => 'attachment',
+                Filename    => $File,
+                Type        => 'attachment',
             );
         }
     }
+
     # ------------------------------------------------------------ #
     # change repository
     # ------------------------------------------------------------ #
-    elsif ($Self->{Subaction} eq 'ChangeRepository') {
-        my $Source = $Self->{ParamObject}->GetParam(Param => 'Source') || '';
+    elsif ( $Self->{Subaction} eq 'ChangeRepository' ) {
+        my $Source = $Self->{ParamObject}->GetParam( Param => 'Source' ) || '';
         $Self->{SessionObject}->UpdateSessionID(
             SessionID => $Self->{SessionID},
-            Key => 'UserRepository',
-            Value => $Source,
+            Key       => 'UserRepository',
+            Value     => $Source,
         );
-        return $Self->{LayoutObject}->Redirect(OP => "Action=$Self->{Action}");
+        return $Self->{LayoutObject}->Redirect( OP => "Action=$Self->{Action}" );
     }
+
     # ------------------------------------------------------------ #
     # install package
     # ------------------------------------------------------------ #
-    elsif ($Self->{Subaction} eq 'Install') {
-        my $Name = $Self->{ParamObject}->GetParam(Param => 'Name') || '';
-        my $Version = $Self->{ParamObject}->GetParam(Param => 'Version') || '';
+    elsif ( $Self->{Subaction} eq 'Install' ) {
+        my $Name    = $Self->{ParamObject}->GetParam( Param => 'Name' )    || '';
+        my $Version = $Self->{ParamObject}->GetParam( Param => 'Version' ) || '';
         my %Frontend = ();
-        my $Package = $Self->{PackageObject}->RepositoryGet(
-            Name => $Name,
+        my $Package  = $Self->{PackageObject}->RepositoryGet(
+            Name    => $Name,
             Version => $Version,
         );
-        if (!$Package) {
-            return $Self->{LayoutObject}->ErrorScreen(Message => 'No such package!');
+        if ( !$Package ) {
+            return $Self->{LayoutObject}->ErrorScreen( Message => 'No such package!' );
         }
         else {
-            if ($Self->{PackageObject}->PackageInstall(String => $Package)) {
-                return $Self->{LayoutObject}->Redirect(OP => "Action=$Self->{Action}");
+            if ( $Self->{PackageObject}->PackageInstall( String => $Package ) ) {
+                return $Self->{LayoutObject}->Redirect( OP => "Action=$Self->{Action}" );
             }
             else {
                 return $Self->{LayoutObject}->ErrorScreen();
             }
         }
     }
+
     # ------------------------------------------------------------ #
     # install remote package
     # ------------------------------------------------------------ #
-    elsif ($Self->{Subaction} eq 'InstallRemote') {
-        my $File = $Self->{ParamObject}->GetParam(Param => 'File') || '';
+    elsif ( $Self->{Subaction} eq 'InstallRemote' ) {
+        my $File = $Self->{ParamObject}->GetParam( Param => 'File' ) || '';
         my %Frontend = ();
+
         # download package
         my $Package = $Self->{PackageObject}->PackageOnlineGet(
             Source => $Source,
-            File => $File,
+            File   => $File,
         );
+
         # check
-        if (!$Package) {
-            return $Self->{LayoutObject}->ErrorScreen(Message => 'No such package!');
+        if ( !$Package ) {
+            return $Self->{LayoutObject}->ErrorScreen( Message => 'No such package!' );
         }
         else {
-            if ($Self->{PackageObject}->PackageInstall(String => $Package)) {
-                return $Self->{LayoutObject}->Redirect(OP => "Action=$Self->{Action}");
+            if ( $Self->{PackageObject}->PackageInstall( String => $Package ) ) {
+                return $Self->{LayoutObject}->Redirect( OP => "Action=$Self->{Action}" );
             }
             else {
                 return $Self->{LayoutObject}->ErrorScreen();
             }
         }
     }
+
     # ------------------------------------------------------------ #
     # upgrade remote package
     # ------------------------------------------------------------ #
-    elsif ($Self->{Subaction} eq 'UpgradeRemote') {
-        my $File = $Self->{ParamObject}->GetParam(Param => 'File') || '';
+    elsif ( $Self->{Subaction} eq 'UpgradeRemote' ) {
+        my $File = $Self->{ParamObject}->GetParam( Param => 'File' ) || '';
         my %Frontend = ();
+
         # download package
         my $Package = $Self->{PackageObject}->PackageOnlineGet(
-            File => $File,
+            File   => $File,
             Source => $Source,
         );
+
         # check
-        if (!$Package) {
-            return $Self->{LayoutObject}->ErrorScreen(Message => 'No such package!');
+        if ( !$Package ) {
+            return $Self->{LayoutObject}->ErrorScreen( Message => 'No such package!' );
         }
+
         # get package
-#        $Package = $Self->{PackageObject}->RepositoryGet(
-#            Name => $Name,
-#            Version => $Version,
-#        );
-        if (!$Package) {
-            return $Self->{LayoutObject}->ErrorScreen(Message => 'No such package!');
+        #        $Package = $Self->{PackageObject}->RepositoryGet(
+        #            Name => $Name,
+        #            Version => $Version,
+        #        );
+        if ( !$Package ) {
+            return $Self->{LayoutObject}->ErrorScreen( Message => 'No such package!' );
         }
         else {
-            if ($Self->{PackageObject}->PackageUpgrade(String => $Package)) {
-                return $Self->{LayoutObject}->Redirect(OP => "Action=$Self->{Action}");
+            if ( $Self->{PackageObject}->PackageUpgrade( String => $Package ) ) {
+                return $Self->{LayoutObject}->Redirect( OP => "Action=$Self->{Action}" );
             }
             else {
                 return $Self->{LayoutObject}->ErrorScreen();
             }
         }
     }
+
     # ------------------------------------------------------------ #
     # reinstall package
     # ------------------------------------------------------------ #
-    elsif ($Self->{Subaction} eq 'Reinstall') {
-        my $Name = $Self->{ParamObject}->GetParam(Param => 'Name') || '';
-        my $Version = $Self->{ParamObject}->GetParam(Param => 'Version') || '';
+    elsif ( $Self->{Subaction} eq 'Reinstall' ) {
+        my $Name    = $Self->{ParamObject}->GetParam( Param => 'Name' )    || '';
+        my $Version = $Self->{ParamObject}->GetParam( Param => 'Version' ) || '';
         my %Frontend = ();
-        my $Package = $Self->{PackageObject}->RepositoryGet(
-            Name => $Name,
+        my $Package  = $Self->{PackageObject}->RepositoryGet(
+            Name    => $Name,
             Version => $Version,
         );
-        if (!$Package) {
-            return $Self->{LayoutObject}->ErrorScreen(Message => 'No such package!');
+        if ( !$Package ) {
+            return $Self->{LayoutObject}->ErrorScreen( Message => 'No such package!' );
         }
         else {
             $Self->{LayoutObject}->Block(
                 Name => 'Reinstall',
                 Data => {
                     %Param,
-                    Name => $Name,
+                    Name    => $Name,
                     Version => $Version,
                 },
             );
@@ -645,55 +691,57 @@ sub Run {
             $Output .= $Self->{LayoutObject}->NavigationBar();
             $Output .= $Self->{LayoutObject}->Output(
                 TemplateFile => 'AdminPackageManager',
-                Data => \%Param,
+                Data         => \%Param,
             );
             $Output .= $Self->{LayoutObject}->Footer();
             return $Output;
         }
     }
+
     # ------------------------------------------------------------ #
     # reinstall action package
     # ------------------------------------------------------------ #
-    elsif ($Self->{Subaction} eq 'ReinstallAction') {
-        my $Name = $Self->{ParamObject}->GetParam(Param => 'Name') || '';
-        my $Version = $Self->{ParamObject}->GetParam(Param => 'Version') || '';
+    elsif ( $Self->{Subaction} eq 'ReinstallAction' ) {
+        my $Name    = $Self->{ParamObject}->GetParam( Param => 'Name' )    || '';
+        my $Version = $Self->{ParamObject}->GetParam( Param => 'Version' ) || '';
         my %Frontend = ();
-        my $Package = $Self->{PackageObject}->RepositoryGet(
-            Name => $Name,
+        my $Package  = $Self->{PackageObject}->RepositoryGet(
+            Name    => $Name,
             Version => $Version,
         );
-        if (!$Package) {
-            return $Self->{LayoutObject}->ErrorScreen(Message => 'No such package!');
+        if ( !$Package ) {
+            return $Self->{LayoutObject}->ErrorScreen( Message => 'No such package!' );
         }
         else {
-            if ($Self->{PackageObject}->PackageReinstall(String => $Package)) {
-                return $Self->{LayoutObject}->Redirect(OP => "Action=$Self->{Action}");
+            if ( $Self->{PackageObject}->PackageReinstall( String => $Package ) ) {
+                return $Self->{LayoutObject}->Redirect( OP => "Action=$Self->{Action}" );
             }
             else {
                 return $Self->{LayoutObject}->ErrorScreen();
             }
         }
     }
+
     # ------------------------------------------------------------ #
     # uninstall package
     # ------------------------------------------------------------ #
-    elsif ($Self->{Subaction} eq 'Uninstall') {
-        my $Name = $Self->{ParamObject}->GetParam(Param => 'Name') || '';
-        my $Version = $Self->{ParamObject}->GetParam(Param => 'Version') || '';
+    elsif ( $Self->{Subaction} eq 'Uninstall' ) {
+        my $Name    = $Self->{ParamObject}->GetParam( Param => 'Name' )    || '';
+        my $Version = $Self->{ParamObject}->GetParam( Param => 'Version' ) || '';
         my %Frontend = ();
-        my $Package = $Self->{PackageObject}->RepositoryGet(
-            Name => $Name,
+        my $Package  = $Self->{PackageObject}->RepositoryGet(
+            Name    => $Name,
             Version => $Version,
         );
-        if (!$Package) {
-            return $Self->{LayoutObject}->ErrorScreen(Message => 'No such package!');
+        if ( !$Package ) {
+            return $Self->{LayoutObject}->ErrorScreen( Message => 'No such package!' );
         }
         else {
             $Self->{LayoutObject}->Block(
                 Name => 'Uninstall',
                 Data => {
                     %Param,
-                    Name => $Name,
+                    Name    => $Name,
                     Version => $Version,
                 },
             );
@@ -701,68 +749,71 @@ sub Run {
             $Output .= $Self->{LayoutObject}->NavigationBar();
             $Output .= $Self->{LayoutObject}->Output(
                 TemplateFile => 'AdminPackageManager',
-                Data => \%Param,
+                Data         => \%Param,
             );
             $Output .= $Self->{LayoutObject}->Footer();
             return $Output;
         }
     }
+
     # ------------------------------------------------------------ #
     # uninstall action package
     # ------------------------------------------------------------ #
-    elsif ($Self->{Subaction} eq 'UninstallAction') {
-        my $Name = $Self->{ParamObject}->GetParam(Param => 'Name') || '';
-        my $Version = $Self->{ParamObject}->GetParam(Param => 'Version') || '';
+    elsif ( $Self->{Subaction} eq 'UninstallAction' ) {
+        my $Name    = $Self->{ParamObject}->GetParam( Param => 'Name' )    || '';
+        my $Version = $Self->{ParamObject}->GetParam( Param => 'Version' ) || '';
         my %Frontend = ();
-        my $Package = $Self->{PackageObject}->RepositoryGet(
-            Name => $Name,
+        my $Package  = $Self->{PackageObject}->RepositoryGet(
+            Name    => $Name,
             Version => $Version,
         );
-        if (!$Package) {
-            return $Self->{LayoutObject}->ErrorScreen(Message => 'No such package!');
+        if ( !$Package ) {
+            return $Self->{LayoutObject}->ErrorScreen( Message => 'No such package!' );
         }
         else {
-            if ($Self->{PackageObject}->PackageUninstall(String => $Package)) {
-                return $Self->{LayoutObject}->Redirect(OP => "Action=$Self->{Action}");
+            if ( $Self->{PackageObject}->PackageUninstall( String => $Package ) ) {
+                return $Self->{LayoutObject}->Redirect( OP => "Action=$Self->{Action}" );
             }
             else {
                 return $Self->{LayoutObject}->ErrorScreen();
             }
         }
     }
+
     # ------------------------------------------------------------ #
     # install package
     # ------------------------------------------------------------ #
-    elsif ($Self->{Subaction} eq 'InstallPackage') {
+    elsif ( $Self->{Subaction} eq 'InstallPackage' ) {
         my %UploadStuff = $Self->{ParamObject}->GetUploadAll(
-            Param => "file_upload",
+            Param  => "file_upload",
             Source => 'string',
         );
-        if (!%UploadStuff) {
-            return $Self->{LayoutObject}->ErrorScreen(Message => 'Need File');
+        if ( !%UploadStuff ) {
+            return $Self->{LayoutObject}->ErrorScreen( Message => 'Need File' );
         }
         else {
-            if ($Self->{PackageObject}->PackageInstall(String => $UploadStuff{Content})) {
-                return $Self->{LayoutObject}->Redirect(OP => "Action=$Self->{Action}");
+            if ( $Self->{PackageObject}->PackageInstall( String => $UploadStuff{Content} ) ) {
+                return $Self->{LayoutObject}->Redirect( OP => "Action=$Self->{Action}" );
             }
             else {
                 return $Self->{LayoutObject}->ErrorScreen();
             }
         }
     }
+
     # ------------------------------------------------------------ #
     # rebuild package
     # ------------------------------------------------------------ #
-    elsif ($Self->{Subaction} eq 'RebuildPackage') {
-        my $Name = $Self->{ParamObject}->GetParam(Param => 'Name') || '';
-        my $Version = $Self->{ParamObject}->GetParam(Param => 'Version') || '';
+    elsif ( $Self->{Subaction} eq 'RebuildPackage' ) {
+        my $Name    = $Self->{ParamObject}->GetParam( Param => 'Name' )    || '';
+        my $Version = $Self->{ParamObject}->GetParam( Param => 'Version' ) || '';
         my %Frontend = ();
-        my $Package = $Self->{PackageObject}->RepositoryGet(
-            Name => $Name,
+        my $Package  = $Self->{PackageObject}->RepositoryGet(
+            Name    => $Name,
             Version => $Version,
         );
-        if (!$Package) {
-            return $Self->{LayoutObject}->ErrorScreen(Message => 'No such package!');
+        if ( !$Package ) {
+            return $Self->{LayoutObject}->ErrorScreen( Message => 'No such package!' );
         }
         else {
             my %Structur = $Self->{PackageObject}->PackageParse(
@@ -770,31 +821,32 @@ sub Run {
             );
             my $File = $Self->{PackageObject}->PackageBuild(%Structur);
             return $Self->{LayoutObject}->Attachment(
-                Content => $File,
+                Content     => $File,
                 ContentType => 'plain/xml',
-                Filename => "$Name-$Version-rebuild.opm",
-                Type => 'attachment',
+                Filename    => "$Name-$Version-rebuild.opm",
+                Type        => 'attachment',
             );
         }
     }
+
     # ------------------------------------------------------------ #
     # overview
     # ------------------------------------------------------------ #
     else {
-        my %Frontend = ();
+        my %Frontend      = ();
         my %NeedReinstall = ();
-        my %List = ();
-        if ($Self->{ConfigObject}->Get('Package::RepositoryList')) {
-            %List = %{$Self->{ConfigObject}->Get('Package::RepositoryList')};
+        my %List          = ();
+        if ( $Self->{ConfigObject}->Get('Package::RepositoryList') ) {
+            %List = %{ $Self->{ConfigObject}->Get('Package::RepositoryList') };
         }
         my %RepositoryRoot = ();
-        if ($Self->{ConfigObject}->Get('Package::RepositoryRoot')) {
+        if ( $Self->{ConfigObject}->Get('Package::RepositoryRoot') ) {
             %RepositoryRoot = $Self->{PackageObject}->PackageOnlineRepositories();
         }
         $Frontend{'SourceList'} = $Self->{LayoutObject}->OptionStrgHashRef(
             Data => { %List, %RepositoryRoot, },
             Name => 'Source',
-            Max => 40,
+            Max  => 40,
             SelectedID => $Source,
         );
         $Self->{LayoutObject}->Block(
@@ -814,7 +866,7 @@ sub Run {
                         Source => $Source,
                     },
                 );
-                if ($Data->{Upgrade}) {
+                if ( $Data->{Upgrade} ) {
                     $Self->{LayoutObject}->Block(
                         Name => 'ShowRemotePackageUpgrade',
                         Data => {
@@ -823,7 +875,7 @@ sub Run {
                         },
                     );
                 }
-                elsif (!$Data->{Installed}) {
+                elsif ( !$Data->{Installed} ) {
                     $Self->{LayoutObject}->Block(
                         Name => 'ShowRemotePackageInstall',
                         Data => {
@@ -835,18 +887,26 @@ sub Run {
             }
         }
 
-        foreach my $Package ($Self->{PackageObject}->RepositoryList()) {
+        foreach my $Package ( $Self->{PackageObject}->RepositoryList() ) {
             my $Description = '';
-            foreach my $Tag (@{$Package->{Description}}) {
+            foreach my $Tag ( @{ $Package->{Description} } ) {
+
                 # just use start tags
-                if ($Tag->{TagType} ne 'Start') {
+                if ( $Tag->{TagType} ne 'Start' ) {
                     next;
                 }
-                if ($Tag->{Tag} eq 'Description') {
-                    if (!$Description) {
+                if ( $Tag->{Tag} eq 'Description' ) {
+                    if ( !$Description ) {
                         $Description = $Tag->{Content};
                     }
-                    if (($Self->{UserLanguage} && $Tag->{Lang} eq $Self->{UserLanguage}) || (!$Self->{UserLanguage} && $Tag->{Lang} eq $Self->{ConfigObject}->Get('DefaultLanguage'))) {
+                    if (
+                        ( $Self->{UserLanguage} && $Tag->{Lang} eq $Self->{UserLanguage} )
+                        || (
+                            !$Self->{UserLanguage}
+                            && $Tag->{Lang} eq $Self->{ConfigObject}->Get('DefaultLanguage')
+                        )
+                        )
+                    {
                         $Description = $Tag->{Content};
                     }
                 }
@@ -854,35 +914,42 @@ sub Run {
 
             $Self->{LayoutObject}->Block(
                 Name => 'ShowLocalPackage',
-                Data => { %{$Package},
-                    Name => $Package->{Name}->{Content},
-                    Version => $Package->{Version}->{Content},
-                    Vendor => $Package->{Vendor}->{Content},
-                    URL => $Package->{URL}->{Content},
+                Data => {
+                    %{$Package},
+                    Name        => $Package->{Name}->{Content},
+                    Version     => $Package->{Version}->{Content},
+                    Vendor      => $Package->{Vendor}->{Content},
+                    URL         => $Package->{URL}->{Content},
                     Description => $Description,
                 },
             );
-            if ($Package->{Status} eq 'installed') {
+            if ( $Package->{Status} eq 'installed' ) {
                 $Self->{LayoutObject}->Block(
                     Name => 'ShowLocalPackageUninstall',
-                    Data => { %{$Package},
-                        Name => $Package->{Name}->{Content},
+                    Data => {
+                        %{$Package},
+                        Name    => $Package->{Name}->{Content},
                         Version => $Package->{Version}->{Content},
-                        Vendor => $Package->{Vendor}->{Content},
-                        URL => $Package->{URL}->{Content},
+                        Vendor  => $Package->{Vendor}->{Content},
+                        URL     => $Package->{URL}->{Content},
                     },
                 );
-                if (!$Self->{PackageObject}->DeployCheck(
-                    Name => $Package->{Name}->{Content},
-                    Version => $Package->{Version}->{Content})) {
-                    $NeedReinstall{$Package->{Name}->{Content}} = $Package->{Version}->{Content};
+                if (
+                    !$Self->{PackageObject}->DeployCheck(
+                        Name    => $Package->{Name}->{Content},
+                        Version => $Package->{Version}->{Content}
+                    )
+                    )
+                {
+                    $NeedReinstall{ $Package->{Name}->{Content} } = $Package->{Version}->{Content};
                     $Self->{LayoutObject}->Block(
                         Name => 'ShowLocalPackageReinstall',
-                        Data => { %{$Package},
-                            Name => $Package->{Name}->{Content},
+                        Data => {
+                            %{$Package},
+                            Name    => $Package->{Name}->{Content},
                             Version => $Package->{Version}->{Content},
-                            Vendor => $Package->{Vendor}->{Content},
-                            URL => $Package->{URL}->{Content},
+                            Vendor  => $Package->{Vendor}->{Content},
+                            URL     => $Package->{URL}->{Content},
                         },
                     );
                 }
@@ -890,17 +957,19 @@ sub Run {
             else {
                 $Self->{LayoutObject}->Block(
                     Name => 'ShowLocalPackageInstall',
-                    Data => { %{$Package},
-                        Name => $Package->{Name}->{Content},
+                    Data => {
+                        %{$Package},
+                        Name    => $Package->{Name}->{Content},
                         Version => $Package->{Version}->{Content},
-                        Vendor => $Package->{Vendor}->{Content},
-                        URL => $Package->{URL}->{Content},
+                        Vendor  => $Package->{Vendor}->{Content},
+                        URL     => $Package->{URL}->{Content},
                     },
                 );
             }
         }
+
         # show file upload
-        if ($Self->{ConfigObject}->Get('Package::FileUpload')) {
+        if ( $Self->{ConfigObject}->Get('Package::FileUpload') ) {
             $Self->{LayoutObject}->Block(
                 Name => 'OverviewFileUpload',
             );
@@ -908,16 +977,20 @@ sub Run {
 
         my $Output = $Self->{LayoutObject}->Header();
         $Output .= $Self->{LayoutObject}->NavigationBar();
-        foreach (sort keys %NeedReinstall) {
+        foreach ( sort keys %NeedReinstall ) {
             $Output .= $Self->{LayoutObject}->Notify(
                 Priority => 'Error',
-                Data => "$_ $NeedReinstall{$_}".' - $Text{"Package not correctly deployed! You should reinstall the Package again!"}',
-                Link => '$Env{"Baselink"}Action=$Env{"Action"}&Subaction=View&Name='.$_.'&Version='.$NeedReinstall{$_},
+                Data     => "$_ $NeedReinstall{$_}"
+                    . ' - $Text{"Package not correctly deployed! You should reinstall the Package again!"}',
+                Link => '$Env{"Baselink"}Action=$Env{"Action"}&Subaction=View&Name='
+                    . $_
+                    . '&Version='
+                    . $NeedReinstall{$_},
             );
         }
         $Output .= $Self->{LayoutObject}->Output(
             TemplateFile => 'AdminPackageManager',
-            Data => \%Param,
+            Data         => \%Param,
         );
         $Output .= $Self->{LayoutObject}->Footer();
         return $Output;
