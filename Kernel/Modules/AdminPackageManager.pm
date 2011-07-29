@@ -2,7 +2,7 @@
 # Kernel/Modules/AdminPackageManager.pm - manage software packages
 # Copyright (C) 2001-2011 OTRS AG, http://otrs.org/
 # --
-# $Id: AdminPackageManager.pm,v 1.46.2.5 2011-07-28 09:08:26 martin Exp $
+# $Id: AdminPackageManager.pm,v 1.46.2.6 2011-07-29 11:39:45 martin Exp $
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -16,7 +16,7 @@ use Kernel::System::Package;
 use Kernel::System::Web::UploadCache;
 
 use vars qw($VERSION);
-$VERSION = '$Revision: 1.46.2.5 $';
+$VERSION = '$Revision: 1.46.2.6 $';
 $VERSION =~ s/^\$.*:\W(.*)\W.+?$/$1/;
 
 sub new {
@@ -115,14 +115,25 @@ sub Run {
 
         # do not allow to read file with including .. path (security related)
         $LocalFile =~ s/\.\.//g;
-        if ( !-e $LocalFile ) {
+        if ( !$File ) {
+            $Self->{LayoutObject}->Block(
+                Name => 'FileDiff',
+                Data => {
+                    Location => $Location,
+                    Name     => $Name,
+                    Version  => $Version,
+                    Diff     => "No such file $LocalFile in package!",
+                },
+            );
+        }
+        elsif ( !-e $LocalFile ) {
             $Self->{LayoutObject}->Block(
                 Name => "FileDiff",
                 Data => {
                     Location => $Location,
                     Name     => $Name,
                     Version  => $Version,
-                    Diff     => "No such file $LocalFile!",
+                    Diff     => "No such file $LocalFile in local file system!",
                 },
             );
         }
