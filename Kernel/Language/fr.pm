@@ -1114,7 +1114,7 @@ sub Data {
         'Archive selected tickets' => 'Archiver tickets sélectionnés',
         'Add Note' => 'Ajouter une note',
         'Time units' => 'Unité de temps',
-        '(work units)' => 'Unité de travail',
+        '(work units)' => '(unités de travail)',
         'Ticket Commands' => 'Commandes de Ticket',
         'Send agent/customer notifications on changes' => 'Envoyer des notifications à l\'opérateur/au client sur changement',
         'CMD' => 'CMD',
@@ -2747,8 +2747,8 @@ sub Data {
         'Activates time accounting.' => 'Active la comptabilisation du temps',
         'Adds a suffix with the actual year and month to the OTRS log file. A logfile for every month will be created.' =>
             '',
-        'Adds customers email addresses to recipients in the ticket compose screen of the agent interface. The customers email address won\'t be added if the article type is email-internal.' =>
-            '',
+        'Adds customers email addresses to recipients in the ticket compose screen of the agent interface.' =>
+            'Ajoute l\'adresse e-mail des clients en destinataire dans l\'écran de création de l\'interface opérateur.',
         'Adds the one time vacation days for the indicated calendar. Please use single digit pattern for numbers from 1 to 9 (instead of 01 - 09).' =>
             '',
         'Adds the one time vacation days. Please use single digit pattern for numbers from 1 to 9 (instead of 01 - 09).' =>
