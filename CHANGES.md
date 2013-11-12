@@ -1,8 +1,29 @@
+#3.2.12 2013-11-05
+ - 2013-10-31 Updated French translation, thanks to Olivier Sallou!
+ - 2013-10-31 Fixed bug#[9910](http://bugs.otrs.org/show_bug.cgi?id=9910) - Startup warnings/errors with Perl 5.18.1.
+ - 2013-10-29 Fixed bug#[9753](http://bugs.otrs.org/show_bug.cgi?id=9753) - META HTTP-EQUIV="Refresh" tag not stripped from HTML email.
+ - 2013-10-28 Fixed bug#[9897](http://bugs.otrs.org/show_bug.cgi?id=9897) - process ticket 'fading away' -> Process is invalid.
+ - 2013-10-28 Fixed bug#[9749](http://bugs.otrs.org/show_bug.cgi?id=9749) - Using spell checker in rich text Editor strips HTML formatting.
+ - 2013-10-28 Fixed bug#[4465](http://bugs.otrs.org/show_bug.cgi?id=4465) - Spell checker ispell ignores some characters such German umlauts.
+ - 2013-10-25 Fixed bug#[9883](http://bugs.otrs.org/show_bug.cgi?id=9883) - Stats Overview is slow due Caching bug (object cache does not work).
+ - 2013-10-25 Fixed bug#[9839](http://bugs.otrs.org/show_bug.cgi?id=9839) - Inline images not showing up when cookies are disabled.
+ - 2013-10-25 Moved process import functionality in the backend module Kernel/System/ProcessManagement/DB/Process.pm.
+ - 2013-10-18 Fixed bug#[9669](http://bugs.otrs.org/show_bug.cgi?id=9669) - Accessibility: ticket submenu not expandable with the keyboard.
+ - 2013-10-14 Fixed bug#[9814](http://bugs.otrs.org/show_bug.cgi?id=9814) - Tickets without articles not shown correcly in medium view.
+ - 2013-10-14 Fixed bug#[9812](http://bugs.otrs.org/show_bug.cgi?id=9812) - Sysconfig descriptions for tooltips and placeholder values of toolbar widgets are ignored.
+ - 2013-10-14 Fixed bug#[9391](http://bugs.otrs.org/show_bug.cgi?id=9391) - Incorrect permissions on .procmailrc.
+ - 2013-10-08 Fixed bug#[9796](http://bugs.otrs.org/show_bug.cgi?id=9796) - Misaligned Headers on Simple Stats.
+
 #3.2.11 2013-10-08
+ - 2013-10-07 Fixed bug#[9770](http://bugs.otrs.org/show_bug.cgi?id=9770) - JavaScript Execution in ProcessManagement is broken in IE8.
+ - 2013-10-03 Fixed bug#[9786](http://bugs.otrs.org/show_bug.cgi?id=9786) - Missing tooltip text in Dropdown and Multiselect Dynamic Fields admin.
+ - 2013-10-03 Fixed bug#[9785](http://bugs.otrs.org/show_bug.cgi?id=9785) - Switch Customer should not be displayed in New Ticket Customer Option.
+ - 2013-10-02 Fixed bug#[9782](http://bugs.otrs.org/show_bug.cgi?id=9782) - Typo in DynamicField Multiselect function.
  - 2013-10-01 Fixed bug#[9542](http://bugs.otrs.org/show_bug.cgi?id=9542) - Uninitialized value in AgentTicketForward.
  - 2013-09-30 Fixed bug#[9765](http://bugs.otrs.org/show_bug.cgi?id=9765) - Dynamic Field values are completely removed if one entry contains a dash.
  - 2013-09-27 Fixed bug#[9764](http://bugs.otrs.org/show_bug.cgi?id=9764) - ACL, Queue will ignored with customerID.
  - 2013-09-27 Fixed bug#[9762](http://bugs.otrs.org/show_bug.cgi?id=9762) - Queue View - S / M / L views - not saved after logout.
+    This also includes the fix for the problem that only 10 tickets per page were shown in the small view.
  - 2013-09-26 Fixed bug#[9580](http://bugs.otrs.org/show_bug.cgi?id=9580) - Time fields in TicketGetResponse Ticket element do not comply with xsd:DateTime format.
  - 2013-09-26 Fixed bug#[9748](http://bugs.otrs.org/show_bug.cgi?id=9748) - ProcessManagement: Duplicate articles in a process-ticket (TransitionAction).
  - 2013-09-26 Fixed bug#[9759](http://bugs.otrs.org/show_bug.cgi?id=9759) - Installer Error DB - max key length is 767 bytes.

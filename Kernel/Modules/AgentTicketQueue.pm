@@ -182,6 +182,14 @@ sub Run {
         $Self->{LayoutObject}->FatalError( Message => "Invalid Filter: $Self->{Filter}!" );
     }
 
+    # lookup latest used view mode
+    if ( !$Self->{View} && $Self->{ 'UserTicketOverview' . $Self->{Action} } ) {
+        $Self->{View} = $Self->{ 'UserTicketOverview' . $Self->{Action} };
+    }
+
+    # otherwise use Preview as default as in LayoutTicket
+    $Self->{View} ||= 'Preview';
+
     # get personal page shown count
     my $PageShownPreferencesKey = 'UserTicketOverview' . $Self->{View} . 'PageShown';
     my $PageShown = $Self->{$PageShownPreferencesKey} || 10;

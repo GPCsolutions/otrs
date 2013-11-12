@@ -1391,7 +1391,7 @@ sub GetObjectName {
     my $Module = $Param{ObjectModule};
 
     # check if it is cached
-    return $Self->{'Cache::ObjectModule'}->{$Module} if $Self->{'Cache::ObjectName'}->{$Module};
+    return $Self->{'Cache::ObjectName'}->{$Module} if $Self->{'Cache::ObjectName'}->{$Module};
 
     # load module, return if module does not exist
     # (this is important when stats are uninstalled, see also bug# 4269)
@@ -1403,7 +1403,7 @@ sub GetObjectName {
     my $Name = $StatObject->GetObjectName();
 
     # cache the result
-    $Self->{'Cache::ObjectModule'}->{$Module} = $Name;
+    $Self->{'Cache::ObjectName'}->{$Module} = $Name;
 
     return $Name;
 }
@@ -2271,11 +2271,19 @@ sub _GenerateDynamicStats {
                             = sprintf( "%04d-%02d-%02d %02d:%02d:%02d", $Y, $M, 1, 0, 0, 0 );
                     }
                     elsif ( $Element->{TimeRelativeUnit} eq 'Week' ) {
-                        ( $Y, $M, $D ) = Add_Delta_YMD( $Y, $M, $D, 0, -1, 0 );
+                        ( $Y, $M, $D ) = Add_Delta_YMD( $Y, $M, $D, 0, 0, 0 );
                         $Element->{TimeStop} = sprintf(
                             "%04d-%02d-%02d %02d:%02d:%02d",
                             $Y, $M, $D, 23, 59, 59
                         );
+
+                        # $Count was reduced by 1 before, this has to be reverted for Week
+                        #     Examples:
+                        #     Week set to 1, $Count will be 0 then - 0 * 7 = 0 (means today)
+                        #     Week set to 2, $Count will be 1 then - 1 * 7 = 7 (means last week)
+                        #     With the fix, example 1 will mean last week and example 2 will mean
+                        #     last two weeks
+                        $Count++;
                         ( $Y, $M, $D ) = Add_Delta_Days( $Y, $M, $D, -$Count * 7 );
                         $Element->{TimeStart}
                             = sprintf( "%04d-%02d-%02d %02d:%02d:%02d", $Y, $M, $D, 0, 0, 0 );
@@ -2957,6 +2965,19 @@ sub _GenerateDynamicStats {
     }
     elsif ( $ArraySelected[0] ) {
         unshift( @HeaderLine, $ArraySelected[0]{Name} || '' );
+    }
+    else {
+        # in cases where there is no value set, then the headers get wrong unless a empty element
+        #    is added in the header, bug 9796
+        #
+        #   e.g. from:
+        #    Raw    | Misc | PostMaster |    |
+        #    Ticket | 10   | 20         | 30 |
+        #
+        #    to:
+        #           | Raw | Misc | PostMaster |
+        #    Ticket | 10  | 20   | 30         |
+        unshift( @HeaderLine, '' );
     }
 
     # push the first array elements in the StatsArray

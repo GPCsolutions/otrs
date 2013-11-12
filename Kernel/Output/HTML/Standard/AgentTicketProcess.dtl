@@ -74,7 +74,7 @@
                 else if ($ElementToUpdate && isJQueryObject($ElementToUpdate) && $ElementToUpdate.length) {
                     $ElementToUpdate.get(0).innerHTML = Response;
                     $ElementToUpdate.find('script').each(function() {
-                        JavaScriptString += $(this).text();
+                        JavaScriptString += $(this).html();
                         $(this).remove();
                     });
                     $ElementToUpdate.fadeIn();
@@ -83,6 +83,18 @@
                         eval(JavaScriptString);
                     }
                     catch (Exception) {}
+
+                    // Handle special server errors (Response = <div class="ServerError" data-message="Message"></div>)
+                    // Check if first element has class 'ServerError'
+                    if ( $ElementToUpdate.children().first().hasClass('ServerError') ) {
+                        var ErrorMessage = $ElementToUpdate.children().first().data('message');
+
+                        // Add class ServerError to the process select element
+                        $('#ProcessEntityID').addClass('ServerError');
+                        // Set a custom error message to the proccess select element
+                        $('#ProcessEntityIDServerError').children().first().text(ErrorMessage)
+                    }
+
                     Core.Form.Validate.Init();
                     $('#AJAXLoader').addClass('Hidden');
                     $('#AJAXDialog').val('1');
